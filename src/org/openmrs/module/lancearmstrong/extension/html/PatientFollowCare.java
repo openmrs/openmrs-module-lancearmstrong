@@ -24,7 +24,7 @@ import org.openmrs.module.web.extension.PatientDashboardTabExt;;
  * "basicmodule.title" heading. This extension is enabled by defining (uncommenting) it in the
  * /metadata/config.xml file.
  */
-public class PatientTreatmentSummary extends PatientDashboardTabExt {
+public class PatientFollowCare extends PatientDashboardTabExt {
 	
 	/**
 	 * @see org.openmrs.module.web.extension.AdministrationSectionExt#getMediaType()
@@ -39,7 +39,7 @@ public class PatientTreatmentSummary extends PatientDashboardTabExt {
     @Override
     public String getPortletUrl() {
 	    // TODO Auto-generated method stub
-	    return "patientTreatmentSummary";
+	    return "patientFollowCare";
     }
 
 	/**
@@ -57,7 +57,7 @@ public class PatientTreatmentSummary extends PatientDashboardTabExt {
     @Override
     public String getTabId() {
 	    // TODO Auto-generated method stub
-	    return "patientTreatmentSummary";
+	    return "patientFollowCare";
     }
 
 	/**
@@ -66,7 +66,7 @@ public class PatientTreatmentSummary extends PatientDashboardTabExt {
     @Override
     public String getTabName() {
 	    // TODO Auto-generated method stub
-	    return "Treatment Summary";
+	    return "Follow-up Care";
     }
 	
 }

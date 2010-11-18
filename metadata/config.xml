@@ -39,6 +39,18 @@
 		<point>org.openmrs.module.personalhr.patientDashboardTab</point>
 		<class>@MODULE_PACKAGE@.extension.html.PatientTreatmentSummary</class>
 	</extension>
+	<extension>
+		<point>org.openmrs.module.personalhr.patientDashboardTab</point>
+		<class>@MODULE_PACKAGE@.extension.html.PatientToxicities</class>
+	</extension>
+	<extension>
+		<point>org.openmrs.module.personalhr.patientDashboardTab</point>
+		<class>@MODULE_PACKAGE@.extension.html.PatientFollowCare</class>
+	</extension>
+	<extension>
+		<point>org.openmrs.module.personalhr.patientDashboardTab</point>
+		<class>@MODULE_PACKAGE@.extension.html.PatientCommunities</class>
+	</extension>
 	
 	
 	<!-- AOP
