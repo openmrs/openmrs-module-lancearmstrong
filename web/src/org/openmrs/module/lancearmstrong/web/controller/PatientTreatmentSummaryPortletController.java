@@ -25,8 +25,8 @@ import org.openmrs.Person;
 import org.openmrs.module.Extension;
 import org.openmrs.module.ModuleFactory;
 import org.openmrs.module.Extension.MEDIA_TYPE;
-import org.openmrs.module.personalhr.web.controller.PortletController;
 import org.openmrs.module.web.extension.FormEntryHandler;
+import org.openmrs.web.controller.PortletController;
 
 
 /**
