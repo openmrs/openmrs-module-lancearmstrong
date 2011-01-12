@@ -9,6 +9,7 @@
     	<property name="mappings">
             <props>
 			   <prop key="**/lancearmstrong/portlets/patientTreatmentSummary.portlet">patientTreatmentSummaryPortletController</prop>
+			   <prop key="**/lancearmstrong/portlets/htmlFormEntryForm.portlet">htmlFormEntryController</prop>
 			</props>
 		</property>
     </bean>

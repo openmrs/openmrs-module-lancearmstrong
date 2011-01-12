@@ -48,7 +48,7 @@ public class PatientToxicities extends PatientDashboardTabExt {
     @Override
     public String getRequiredPrivilege() {
 	    // TODO Auto-generated method stub
-	    return null;
+	    return "View Side Effects";
     }
 
 	/**

@@ -48,7 +48,7 @@ public class PatientFollowCare extends PatientDashboardTabExt {
     @Override
     public String getRequiredPrivilege() {
 	    // TODO Auto-generated method stub
-	    return null;
+	    return "View Follow-up Care";
     }
 
 	/**
