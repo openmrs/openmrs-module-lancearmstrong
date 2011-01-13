@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+
+<hibernate-mapping package="org.openmrs.module.lancearmstrong">
+
+	<class name="LafGuideline" table="cancer_surveillance_guideline">
+
+		<id name="id" type="int" column="id" unsaved-value="0">
+			<generator class="native" />
+		</id>
+
+		<many-to-one name="cancerType" class="org.openmrs.Concept" column="cancer_type" not-null="true"/>
+		<many-to-one name="cancerStage" class="org.openmrs.Concept" column="cancer_stage" not-null="true"/>
+		<many-to-one name="followProcedure" class="org.openmrs.Concept" column="follow_up_procedure" not-null="true"/>
+		<property name="followYears" type="java.lang.String" column="follow_up_years"/>
+			
+	</class>
+	
+	<class name="LafReminder" table="cancer_patient_reminder">
+
+		<id name="id" type="int" column="id" unsaved-value="0">
+			<generator class="native" />
+		</id>
+
+		<many-to-one name="patient" column="patient_id" class="org.openmrs.Patient" not-null="true" />
+		<many-to-one name="followProcedure" class="org.openmrs.Concept" column="follow_up_procedure" not-null="true"/>
+		<property name="targetDate" type="java.util.Date" column="target_date" not-null="true"
+			length="19" />	
+		<property name="responseDate" type="java.util.Date" column="response_date" not-null="false"
+			length="19" />	
+		<property name="responseType" type="java.lang.String" column="response_type" />
+		<property name="responseAttributes" type="java.lang.String" column="response_attributes" />
+		<property name="responseComments" type="java.lang.String" column="response_comments" />
+		<many-to-one name="responseUser" class="org.openmrs.User" column="response_user" />
+	</class>
+	
+</hibernate-mapping>

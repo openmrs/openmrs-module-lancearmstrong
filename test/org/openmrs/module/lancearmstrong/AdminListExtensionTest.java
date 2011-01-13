@@ -11,7 +11,7 @@
  *
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
-package org.openmrs.module.personalhr;
+package org.openmrs.module.lancearmstrong;
 
 import java.util.Map;
 
