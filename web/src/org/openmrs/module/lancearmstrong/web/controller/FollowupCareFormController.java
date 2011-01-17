@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.lancearmstrong.LafPatient;
 import org.openmrs.module.lancearmstrong.LafReminder;
 import org.openmrs.module.lancearmstrong.LafUtil;
 import org.openmrs.module.personalhr.PersonalhrUtil;
@@ -50,7 +51,7 @@ public class FollowupCareFormController extends SimpleFormController {
     }
     
     @Override
-    protected List<LafReminder> formBackingObject(HttpServletRequest request) throws Exception {
+    protected LafPatient formBackingObject(HttpServletRequest request) throws Exception {
         log.debug("Entering FollowupCareFormController:formBackingObject");
         Integer patientId = null;
         Patient pat = null;
@@ -64,7 +65,7 @@ public class FollowupCareFormController extends SimpleFormController {
             pat = Context.getPatientService().getPatient(patientId);
         }
         
-        return LafUtil.getService().getReminders(pat);         
+        return new LafPatient(pat, LafUtil.getService().getReminders(pat));         
     }
 
     @Override
@@ -72,7 +73,7 @@ public class FollowupCareFormController extends SimpleFormController {
             Object commandObject, BindException errors) throws Exception {
         String command = request.getParameter("command");
         log.debug("Entering FollowupCareFormController:onBindAndValidate, command=" + command);
-        List<LafReminder> reminders = (List<LafReminder>) commandObject;
+        List<LafReminder> reminders = ((LafPatient) commandObject).getReminders();
         
         log.debug("reminders.size="+reminders.size() );
         try {
@@ -80,8 +81,10 @@ public class FollowupCareFormController extends SimpleFormController {
                 for(LafReminder reminder : reminders) {
                   //validate complete date
                   if(reminder.RESPONSE_COMPLETED.equals(reminder.getResponseType()) && reminder.getCompleteDate()==null) {
+                    log.debug("Complete date must be entered!");  
                     errors.reject("Complete date must be entered!");  
                   } else if(reminder.RESPONSE_COMPLETED.equals(reminder.getResponseType()) && reminder.getCompleteDate().before(getEarliestCompleteDate(reminder))) {
+                    log.debug("Complete date is too early!");  
                     errors.reject("Complete date is too early!");  
                   }                   
                 }
@@ -114,7 +117,7 @@ public class FollowupCareFormController extends SimpleFormController {
         String command = request.getParameter("command");
         log.debug("Entering FollowupCareFormController:onSubmit, command=" + command+", id=" + request.getParameter("reminderIdField"));
         
-        List<LafReminder> reminders = (List<LafReminder>) commandObject;
+        List<LafReminder> reminders = ((LafPatient) commandObject).getReminders();
          
         log.debug("onSubmit: reminders.size="+reminders.size());
         try {

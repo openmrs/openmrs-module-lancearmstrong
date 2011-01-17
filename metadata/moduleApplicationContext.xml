@@ -54,7 +54,7 @@
 	<bean id="patientFollowCareForm"
 		class="org.openmrs.module.lancearmstrong.web.controller.FollowupCareFormController">
 		<property name="sessionForm"><value>true</value></property>
-		<property name="commandName"><value>reminders</value></property>
+		<property name="commandName"><value>patient</value></property>
 		<property name="formView"><value>/module/lancearmstrong/view/patientFollowCareForm</value></property>
 		<property name="successView"><value>patientFollowCareForm.form</value></property>
 	</bean>

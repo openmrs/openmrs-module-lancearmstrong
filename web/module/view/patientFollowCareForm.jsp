@@ -26,11 +26,11 @@
 </script>
 
 <div class="tooltip">
-Below is a list of recommended follow-up care. Please keep these records up-to-date by updating corresponding fields when you respond to an alert that remind you of individual care at appropriate time.  
+Below is a list of recommended follow-up care. Please keep these records up-to-date by updating corresponding fields when you respond to an alert that reminds you of individual care at appropriate time.  
 </div>
 
 <div id="followup-div"  >
-<spring:hasBindErrors name="reminders">
+<spring:hasBindErrors name="patient">
 	<spring:message code="fix.error"/>
 	<div class="error">
 		<c:forEach items="${errors.allErrors}" var="error">
@@ -55,7 +55,7 @@ Below is a list of recommended follow-up care. Please keep these records up-to-d
 			  </tr>
 		  </thead>
 		  <tbody>
-		  <c:forEach var="reminder" items="${reminders}" varStatus="status">
+		  <c:forEach var="reminder" items="${patient.reminders}" varStatus="status">
 	
 			  <tr>
 				<td>
@@ -65,21 +65,25 @@ Below is a list of recommended follow-up care. Please keep these records up-to-d
 			        ${reminder.followProcedure.name}
 			    </td>
 			    <td> 
-					<select name="responseType" onChange="onChange(${reminder.id})">
+			<spring:bind path="patient.reminders[${status.index}].responseType">
+					<select name="${status.expression}" onChange="onChange(${reminder.id})">
 					    <option value="Select one">Select one</option>
 						<option value="Completed"
-							<c:if test="${'Completed' == reminder.responseType}">selected="selected"</c:if>>Completed
+							<c:if test="${'Completed' == status.value}">selected="selected"</c:if>>Completed
 						</option>
 						<option value="Skipped"
-							<c:if test="${'Skipped' == reminder.responseType}">selected="selected"</c:if>>Skipped
+							<c:if test="${'Skipped' == status.value}">selected="selected"</c:if>>Skipped
 						</option>
 			    	</select>
+			</spring:bind>
 			    </td>
 			    <td>
-				    <input type="text" name="completeDate" value="${reminder.completeDate}" id="completeDate${reminder.id}" onClick="showCalendar(this)" onChange="onChange(${reminder.id})"/>
+			<spring:bind path="patient.reminders[${status.index}].completeDate">
+				    <input type="date" name="${status.expression}" value="${status.value}" id="completeDate${reminder.id}" onClick="showCalendar(this)" onChange="onChange(${reminder.id})"/>
+			</spring:bind>
 			    </td>
 			    <td>
-			<spring:bind path="reminders[${status.index}].responseComments">
+			<spring:bind path="patient.reminders[${status.index}].responseComments">
 				    <input type="text" name="${status.expression}" value="${status.value}" id="comments${reminder.id}" onChange="onChange(${reminder.id})"/>
 			</spring:bind>
 			    </td>

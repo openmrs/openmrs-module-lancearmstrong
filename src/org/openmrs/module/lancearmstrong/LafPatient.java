@@ -15,32 +15,37 @@ package org.openmrs.module.lancearmstrong;
 
 import java.util.List;
 
+import org.openmrs.Patient;
+
 
 /**
  *
  */
 public class LafPatient {
-	private Integer patientId;
+	private Patient patient;
 	private List<LafReminder> reminders;
 	
-	LafPatient(Integer patId) {
-		this.patientId = patId;
+	public LafPatient(Patient pat, List<LafReminder> rem) {
+		this.patient = pat;
+		this.reminders = rem;
 	}
-	
-    public Integer getPatientId() {
-    	return patientId;
-    }
-	
-    public void setPatientId(Integer patientId) {
-    	this.patientId = patientId;
-    }
-	
+			
     public List<LafReminder> getReminders() {
     	return reminders;
     }
 	
     public void setReminders(List<LafReminder> reminders) {
     	this.reminders = reminders;
+    }
+
+	
+    public Patient getPatient() {
+    	return patient;
+    }
+
+	
+    public void setPatient(Patient patient) {
+    	this.patient = patient;
     }
 
  }
