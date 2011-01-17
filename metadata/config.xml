@@ -125,5 +125,10 @@
 	</messages>
 	<!-- /Internationalization -->
 	
+	<!-- hibernate-mapping -->
+	<mappingFiles>
+		lancearmstrong.hbm.xml
+	</mappingFiles>
+	
 </module>
 

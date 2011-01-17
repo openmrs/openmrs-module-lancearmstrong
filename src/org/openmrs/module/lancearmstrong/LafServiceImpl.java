@@ -76,8 +76,8 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 	    // TODO Auto-generated method stub
     	List<LafReminder> reminders = this.reminderDao.getLafReminders(pat);
     	if(reminders == null) {
-    		updateReminders(pat);  
-    		reminders = this.reminderDao.getLafReminders(pat);
+    		reminders = updateReminders(pat);  
+    		//reminders = this.reminderDao.getLafReminders(pat);
     	}
     	
 	    return reminders;
@@ -88,7 +88,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
      * 
      * @param pat
      */
-    private void updateReminders(Patient pat) {
+    private List<LafReminder>  updateReminders(Patient pat) {
     	//find cancer treatment summary encounter
     	/*
     	List<Encounter> encs = Context.getEncounterService().getEncountersByPatient(pat);    	    
@@ -126,19 +126,28 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     	//find follow-up years
     	List<LafGuideline> guidelines = guidelineDao.getLafGuideline(type, stage);
     	
+    	log.debug("Get guidelins: type=" + type + ", stage=" + stage + ", guidelines=" + guidelines);
     	//create reminder entries
-    	for(LafGuideline guideline : guidelines) {
-    		Date[] dates = findTargetDates(surgDate, radType, guideline.getFollowYears());
-    		
-    		for(Date dt: dates) {
-	    		LafReminder reminder = new LafReminder();
-	    		reminder.setPatient(pat);
-	    		reminder.setFollowProcedure(guideline.getFollowProcedure());
-	    		reminder.setTargetDate(dt);
-	    	    //update cancer_patient_reminder table
-	        	reminderDao.saveLafReminder(reminder);
-    		}
-    	}   	
+    	List<LafReminder> reminders = new ArrayList<LafReminder>();
+    	if(guidelines != null) {
+	    	for(LafGuideline guideline : guidelines) {
+	    		Date[] dates = findTargetDates(surgDate, radType, guideline.getFollowYears());
+	    		
+	    		for(Date dt: dates) {
+		    		LafReminder reminder = new LafReminder();
+		    		reminder.setPatient(pat);
+		    		reminder.setFollowProcedure(guideline.getFollowProcedure());
+		    		reminder.setTargetDate(dt);
+		    	    //update cancer_patient_reminder table
+		        	reminderDao.saveLafReminder(reminder);
+		        	reminders.add(reminder);
+	    		}
+	    	}   	
+    	} else {
+    		log.error("Guideline is not found for cancer type:" + type + " and cancer stage: "+ stage);
+    	}
+    	
+    	return reminders;
      }
 
 	/**

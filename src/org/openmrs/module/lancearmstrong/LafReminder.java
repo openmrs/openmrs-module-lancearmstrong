@@ -24,6 +24,8 @@ import org.openmrs.User;
  *
  */
 public class LafReminder {
+	public static final String RESPONSE_COMPLETED = "Completed";
+	public static final String RESPONSE_SKIPPED = "Skipped";
 	private Integer id;	
 	private Patient patient;
 	private Concept followProcedure;
@@ -33,6 +35,7 @@ public class LafReminder {
 	private String responseComments;
 	private User responseUser;
 	private Date targetDate;
+	private Date CompleteDate;
 	
     public Integer getId() {
     	return id;
@@ -106,6 +109,16 @@ public class LafReminder {
 	
     public void setTargetDate(Date targetDate) {
     	this.targetDate = targetDate;
+    }
+
+	
+    public Date getCompleteDate() {
+    	return CompleteDate;
+    }
+
+	
+    public void setCompleteDate(Date completeDate) {
+    	CompleteDate = completeDate;
     }
 	
  }

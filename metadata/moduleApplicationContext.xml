@@ -8,6 +8,8 @@
 		<property name="order" value="2"/>
     	<property name="mappings">
             <props>
+			   <!--<prop key="**/lancearmstrong/portlets/patientFollowCare.portlet">patientFollowCareForm</prop>-->
+			   <prop key="module/lancearmstrong/patientFollowCareForm.form">patientFollowCareForm</prop>
 			   <prop key="**/lancearmstrong/portlets/patientTreatmentSummary.portlet">patientTreatmentSummaryPortletController</prop>
 			   <prop key="**/lancearmstrong/portlets/htmlFormEntryForm.portlet">htmlFormEntryController</prop>
 			</props>
@@ -49,4 +51,12 @@
    	<bean id="patientTreatmentSummaryPortletController" class="org.openmrs.module.lancearmstrong.web.controller.PatientTreatmentSummaryPortletController" />
 	
     <!-- Form Controllers -->
+	<bean id="patientFollowCareForm"
+		class="org.openmrs.module.lancearmstrong.web.controller.FollowupCareFormController">
+		<property name="sessionForm"><value>true</value></property>
+		<property name="commandName"><value>reminders</value></property>
+		<property name="formView"><value>/module/lancearmstrong/view/patientFollowCareForm</value></property>
+		<property name="successView"><value>patientFollowCareForm.form</value></property>
+	</bean>
+    
 </beans>

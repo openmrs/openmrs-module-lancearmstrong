@@ -8,7 +8,11 @@ import org.openmrs.module.lancearmstrong.db.LafReminderDAO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
+import org.hibernate.FlushMode;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 /**
@@ -30,13 +34,28 @@ public class HibernateLafReminderDAO implements LafReminderDAO {
     
     @Override
    public LafReminder saveLafReminder(LafReminder reminder) {
-        sessionFactory.getCurrentSession().saveOrUpdate(reminder);
+        Session sess = sessionFactory.openSession();
+        Transaction tx = sess.beginTransaction();
+        sess.setFlushMode(FlushMode.COMMIT); // allow queries to return stale state
+        sess.saveOrUpdate(reminder);
+        tx.commit();
+        //sess.flush();
+        sess.close();
+        //sessionFactory.getCurrentSession().saveOrUpdate(token);
         return reminder;
+        
     }
     
     @Override
     public void deleteLafReminder(LafReminder reminder) {
-        sessionFactory.getCurrentSession().delete(reminder);
+        //sessionFactory.getCurrentSession().delete(token);
+        //sessionFactory.getCurrentSession().close();
+        Session sess = sessionFactory.openSession();
+        Transaction tx = sess.beginTransaction();
+        sess.setFlushMode(FlushMode.COMMIT); // allow queries to return stale state
+        sess.delete(reminder);
+        tx.commit();
+        sess.close();
     }
 
     @Override
@@ -53,6 +72,7 @@ public class HibernateLafReminderDAO implements LafReminderDAO {
         //List list0 = query.list();        
         Criteria crit = sessionFactory.getCurrentSession().createCriteria(LafReminder.class);
         crit.add(Restrictions.eq("patient", pat));
+        crit.addOrder(Order.asc("targetDate"));
         List<LafReminder> list = (List<LafReminder>) crit.list();
         if (list.size() >= 1)
             return list;

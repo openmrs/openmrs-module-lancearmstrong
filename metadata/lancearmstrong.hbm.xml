@@ -30,6 +30,8 @@
 			length="19" />	
 		<property name="responseDate" type="java.util.Date" column="response_date" not-null="false"
 			length="19" />	
+		<property name="completeDate" type="java.util.Date" column="complete_date" not-null="false"
+			length="19" />				
 		<property name="responseType" type="java.lang.String" column="response_type" />
 		<property name="responseAttributes" type="java.lang.String" column="response_attributes" />
 		<property name="responseComments" type="java.lang.String" column="response_comments" />
