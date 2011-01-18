@@ -1,14 +1,18 @@
 <%@ include file="/WEB-INF/template/include.jsp" %>
 <%@ include file="/WEB-INF/template/headerMinimal.jsp" %>
-<openmrs:htmlInclude file="/scripts/easyAjax.js" />
-
-<openmrs:htmlInclude file="/scripts/jquery/jquery.min.js" />
-<openmrs:htmlInclude file="/scripts/jquery-ui/js/jquery-ui.custom.min.js" />
-<openmrs:htmlInclude file="/scripts/jquery-ui/css/redmond/jquery-ui.custom.css" />
-<openmrs:htmlInclude file="/scripts/jquery/dataTables/css/dataTables.css" />
-<openmrs:htmlInclude file="/scripts/jquery/dataTables/js/jquery.dataTables.min.js" />
-
-<openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
+	<openmrs:htmlInclude file="/scripts/jquery/jquery-1.3.2.min.js" />
+	<script type="text/javascript">
+		$j = jQuery.noConflict();
+	</script>
+	<openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
+	<openmrs:htmlInclude file="/dwr/engine.js" />
+	<openmrs:htmlInclude file="/dwr/util.js" />
+	<openmrs:htmlInclude file="/dwr/interface/DWRHtmlFormEntryService.js" />
+	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.js" />
+	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.css" />
+	<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.2.custom.css" />
+	<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-1.4.2.min.js" />
+	<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.2.custom.min.js" />
 <script type="text/javascript">
 	$j(document).ready(function() {
 	});
@@ -18,8 +22,8 @@
 		$j('#saveChanges'+reminderId).attr("disabled", false);
 	}	
 	
-	function onUpdate(reminderId) {
-		$j('#reminderIdField').val(reminderId);
+	function onUpdate(index, reminderId) {
+		$j('#reminderIdField').val(index);
 		$j('#saveChanges'+reminderId).attr("disabled", false);
 	}	
 			
@@ -59,7 +63,7 @@ Below is a list of recommended follow-up care. Please keep these records up-to-d
 	
 			  <tr>
 				<td>
-			        ${reminder.targetDate.date}/${reminder.targetDate.month}/${reminder.targetDate.year+1900}
+			        ${reminder.targetDate.date}/${reminder.targetDate.month+1}/${reminder.targetDate.year+1900}
 			    </td>
 			    <td>
 			        ${reminder.followProcedure.name}
@@ -88,7 +92,7 @@ Below is a list of recommended follow-up care. Please keep these records up-to-d
 			</spring:bind>
 			    </td>
 			    <td align="center">
-					<input type="submit" value="<spring:message code="general.save" />" name="command" id="saveChanges${reminder.id}" onClick="onUpdate(${status.index});return true;" disabled="true"/>
+					<input type="submit" value="<spring:message code="general.save" />" name="command" id="saveChanges${reminder.id}" onClick="onUpdate(${status.index}, ${reminder.id});return true;" disabled="true"/>
 			    </td>
 			  </tr> 
 	 	  </c:forEach>  
