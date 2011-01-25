@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/template/include.jsp" %>
 
 <div class="boxHeader${model.patientVariation}"><spring:message code="Patient.title"/></div>
-<div class="box${model.patientVariation}">
+<div class="box${model.patientVariation}" style="height:100%">
 	<table class="personName">
 		<thead>
 			<tr class="patientDemographicsHeaderRow">

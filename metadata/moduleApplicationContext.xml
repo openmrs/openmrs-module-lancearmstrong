@@ -12,6 +12,7 @@
 			   <prop key="module/lancearmstrong/patientFollowCareForm.form">patientFollowCareForm</prop>
 			   <prop key="**/lancearmstrong/portlets/patientTreatmentSummary.portlet">patientTreatmentSummaryPortletController</prop>
 			   <prop key="**/lancearmstrong/portlets/htmlFormEntryForm.portlet">htmlFormEntryController</prop>
+			   <prop key="**/lancearmstrong/portlets/patientToxicities.portlet">patientToxicitiesPortletController</prop>
 			</props>
 		</property>
     </bean>
@@ -48,6 +49,7 @@
 	</bean>
     <!-- Portlet Controllers -->
 	
+   	<bean id="patientToxicitiesPortletController" class="org.openmrs.module.lancearmstrong.web.controller.PatientToxicitiesPortletController" />
    	<bean id="patientTreatmentSummaryPortletController" class="org.openmrs.module.lancearmstrong.web.controller.PatientTreatmentSummaryPortletController" />
 	
     <!-- Form Controllers -->

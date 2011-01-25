@@ -21,7 +21,6 @@
 			Create cancer_surveillance_guideline table, for storing follow-up care guidelines for colorectal patients 
 		</description>
 		<sql>	
-			drop table cancer_surveillance_guideline;	
 			CREATE TABLE IF NOT EXISTS `cancer_surveillance_guideline` (
 			  `id` int(11) NOT NULL auto_increment,
 			  `cancer_type` int(11) NOT NULL default '0',
@@ -33,32 +32,7 @@
               CONSTRAINT `Cancer type` FOREIGN KEY (`cancer_type`) REFERENCES `concept` (`concept_id`),              			  
               CONSTRAINT `Cancer stage` FOREIGN KEY (`cancer_stage`) REFERENCES `concept` (`concept_id`),              			  
               CONSTRAINT `Follow-up procedure concept` FOREIGN KEY (`follow_up_procedure`) REFERENCES `concept` (`concept_id`)              			  
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-			
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6110,6148,6219,'0,3,5');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6110,6148,6220,'0.5,1,1.5,2,3,4,5');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6110,6149,6219,'0,3,5');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6110,6149,6220,'0.5,1,1.5,2,3,4,5');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6110,6149,6221,'0.5,1,1.5,2,2.5,3');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6110,6149,6222,'1,2,3');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6110,6150,6219,'0,3,5');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6110,6150,6220,'0.5,1,1.5,2,3,4,6');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6110,6150,6221,'0.5,1,1.5,2,2.5,3');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6110,6150,6222,'1,2,3');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6111,6148,6219,'0,3,5');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6111,6148,6220,'0.5,1,1.5,2,3,4,5');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6111,6149,6219,'0,3,5');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6111,6149,6220,'0.5,1,1.5,2,3,4,5');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6111,6149,6221,'0.5,1,1.5,2,2.5,3');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6111,6149,6222,'1,2,3');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6111,6149,6223,'1,2,3');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6111,6149,6224,'0.5,1,1.5,2,2.5,3,3.5,4,4.5,5:NO RADIATION');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6111,6150,6219,'0,3,5');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6111,6150,6220,'0.5,1,1.5,2,3,4,6');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6111,6150,6221,'0.5,1,1.5,2,2.5,3');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6111,6150,6222,'1,2,3');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6111,6150,6223,'1,2,3');
-			insert into cancer_surveillance_guideline(cancer_type,cancer_stage,follow_up_procedure,follow_up_years)  values(6111,6150,6224,'0.5,1,1.5,2,2.5,3,3.5,4,4.5,5:NO RADIATION');
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;			
 		</sql>
 	</diff>
 	
@@ -70,7 +44,6 @@
 			Create cancer_patient_reminder table, for storing follow-up care reminders for individual cancer patient and their responses to these reminders when they become active (one month before and after the recommended dates) 
 		</description>
 		<sql>	
-			drop table cancer_patient_reminder;	
 			CREATE TABLE IF NOT EXISTS `cancer_patient_reminder` (
 			  `id` int(11) NOT NULL auto_increment,
 			  `patient_id` int(11) default '0',

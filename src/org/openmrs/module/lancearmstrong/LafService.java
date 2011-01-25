@@ -15,6 +15,7 @@ package org.openmrs.module.lancearmstrong;
 
 import java.util.List;
 
+import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.module.lancearmstrong.db.LafGuidelineDAO;
 import org.openmrs.module.lancearmstrong.db.LafReminderDAO;
@@ -60,5 +61,13 @@ public interface LafService {
      * @return
      */
     List<LafReminder> getReminders(Patient pat);
+
+	/**
+     * Auto generated method comment
+     * 
+     * @param pat
+     * @return
+     */
+    List<Concept> getSideEffects(Patient pat);
 
 }
