@@ -48,7 +48,7 @@
 			  `id` int(11) NOT NULL auto_increment,
 			  `patient_id` int(11) default '0',
 			  `follow_up_procedure` int(11) NOT NULL default '0',
- 			  `target_date` datetime NOT NULL,
+ 			  `target_date` datetime default NULL,
 			  `response_date` datetime default NULL,
 			  `complete_date` datetime default NULL,
 			  `response_type` varchar(100),
