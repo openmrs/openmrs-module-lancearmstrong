@@ -26,7 +26,7 @@
 
 		<many-to-one name="patient" column="patient_id" class="org.openmrs.Patient" not-null="true" />
 		<many-to-one name="followProcedure" class="org.openmrs.Concept" column="follow_up_procedure" not-null="true"/>
-		<property name="targetDate" type="java.util.Date" column="target_date" not-null="true"
+		<property name="targetDate" type="java.util.Date" column="target_date" not-null="false"
 			length="19" />	
 		<property name="responseDate" type="java.util.Date" column="response_date" not-null="false"
 			length="19" />	

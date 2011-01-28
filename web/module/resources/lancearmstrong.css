@@ -1,0 +1,34 @@
+#guideline-div{
+	float:left;
+	width:25%;
+}
+
+#followup-div{
+	float:right;
+	width:74%;
+}
+
+#addCareDetailDiv{
+	display:none;
+	margin-top:10px;
+}
+
+#addCareDiv{
+	margin-top:10px;
+}
+
+#cancelAddCare{
+	display:none;
+}
+
+#saveAddCare{
+	display:none;
+}
+
+.sub_title{
+	font-weight:bold;
+	margin-top:7px;
+	margin-bottom:7px;	
+}
+
+

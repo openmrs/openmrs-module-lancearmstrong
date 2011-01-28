@@ -23,11 +23,19 @@ import org.openmrs.Patient;
  */
 public class LafPatient {
 	private Patient patient;
-	private List<LafReminder> reminders;
+	private List<LafReminder> reminders; //follow-up care per guideline
+	private List<LafReminder> remindersCompleted; //follow-up care actually performed
+	private String[] responseTypes = {"Normal", "Abnormal", "Don't know"};
+	private String[] careTypes = {
+			"Colonoscopy", "History and Physical",
+			"CEA Tests", "CT Scan Chest/Abdomen", 
+			"CT Scan Pelvis", "Flex Sigmoidoscopy"};
 	
-	public LafPatient(Patient pat, List<LafReminder> rem) {
+	public LafPatient(Patient pat, List<LafReminder> rem, List<LafReminder> remCompl) {
 		this.patient = pat;
 		this.reminders = rem;
+		this.remindersCompleted = remCompl;
+		
 	}
 			
     public List<LafReminder> getReminders() {
@@ -48,4 +56,33 @@ public class LafPatient {
     	this.patient = patient;
     }
 
+	
+    public List<LafReminder> getRemindersCompleted() {
+    	return remindersCompleted;
+    }
+
+	
+    public void setRemindersCompleted(List<LafReminder> remindersCompleted) {
+    	this.remindersCompleted = remindersCompleted;
+    }
+
+	
+    public String[] getResponseTypes() {
+    	return responseTypes;
+    }
+
+	
+    public void setResponseTypes(String[] responseTypes) {
+    	this.responseTypes = responseTypes;
+    }
+
+	
+    public String[] getCareTypes() {
+    	return careTypes;
+    }
+
+	
+    public void setCareTypes(String[] careTypes) {
+    	this.careTypes = careTypes;
+    }
  }

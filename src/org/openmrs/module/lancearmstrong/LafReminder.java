@@ -18,6 +18,7 @@ import java.util.Date;
 import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.User;
+import org.openmrs.api.context.Context;
 
 
 /**
@@ -29,13 +30,15 @@ public class LafReminder {
 	private Integer id;	
 	private Patient patient;
 	private Concept followProcedure;
+	private String followProcedureName;
 	private Date responseDate;
-	private String responseType;
+	private String responseType; //follow-up care results
 	private String responseAttributes;
 	private String responseComments;
 	private User responseUser;
 	private Date targetDate;
 	private Date CompleteDate;
+	private String doctorName; 
 	
     public Integer getId() {
     	return id;
@@ -116,9 +119,32 @@ public class LafReminder {
     	return CompleteDate;
     }
 
-	
-    public void setCompleteDate(Date completeDate) {
+	public void setCompleteDate(Date completeDate) {
     	CompleteDate = completeDate;
+    }	
+    
+    public String getDoctorName() {
+    	this.doctorName = responseAttributes;
+    	return doctorName;
+    }
+
+	
+    public void setDoctorName(String doctorName) {
+    	this.doctorName = doctorName;
+    	this.responseAttributes = doctorName;
+    }
+
+	
+    public String getFollowProcedureName() {
+    	if(followProcedureName == null && followProcedure != null) {
+    		followProcedureName = followProcedure.getName().getName();
+    	}
+    	return followProcedureName;
+    }
+
+	
+    public void setFollowProcedureName(String followProcedureName) {
+    	this.followProcedureName = followProcedureName;
     }
 	
  }

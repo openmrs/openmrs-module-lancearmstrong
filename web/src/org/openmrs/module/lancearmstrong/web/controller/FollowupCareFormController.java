@@ -65,7 +65,7 @@ public class FollowupCareFormController extends SimpleFormController {
             pat = Context.getPatientService().getPatient(patientId);
         }
         
-        return new LafPatient(pat, LafUtil.getService().getReminders(pat));         
+        return new LafPatient(pat, LafUtil.getService().getReminders(pat), LafUtil.getService().getRemindersCompleted(pat));         
     }
 
     @Override
@@ -73,20 +73,16 @@ public class FollowupCareFormController extends SimpleFormController {
             Object commandObject, BindException errors) throws Exception {
         String command = request.getParameter("command");
         log.debug("Entering FollowupCareFormController:onBindAndValidate, command=" + command);
-        List<LafReminder> reminders = ((LafPatient) commandObject).getReminders();
+        List<LafReminder> reminders = ((LafPatient) commandObject).getRemindersCompleted();
         
-        log.debug("reminders.size="+reminders.size() );
         try {
             if(command!=null && command.startsWith("Save")) {
                 for(LafReminder reminder : reminders) {
                   //validate complete date
-                  if(reminder.RESPONSE_COMPLETED.equals(reminder.getResponseType()) && reminder.getCompleteDate()==null) {
-                    log.debug("Complete date must be entered!");  
-                    errors.reject("Complete date must be entered!");  
-                  } else if(reminder.RESPONSE_COMPLETED.equals(reminder.getResponseType()) && reminder.getCompleteDate().before(getEarliestCompleteDate(reminder))) {
-                    log.debug("Complete date is too early!");  
-                    errors.reject("Complete date is too early!");  
-                  }                   
+                  if(reminder.getCompleteDate()==null || reminder.getCompleteDate().before(new Date(1900, 1, 1))) {
+                    log.debug("Complete date cannot be empty or too early!");  
+                    errors.reject("Complete date cannot be empty or too early!");  
+                  }                  
                 }
             }                  
         } catch (Exception ex) {
@@ -117,15 +113,27 @@ public class FollowupCareFormController extends SimpleFormController {
         String command = request.getParameter("command");
         log.debug("Entering FollowupCareFormController:onSubmit, command=" + command+", id=" + request.getParameter("reminderIdField"));
         
-        List<LafReminder> reminders = ((LafPatient) commandObject).getReminders();
+        List<LafReminder> reminders = ((LafPatient) commandObject).getRemindersCompleted();
          
-        log.debug("onSubmit: reminders.size="+reminders.size());
+        log.debug("onSubmit: reminders.size="+(reminders==null? 0:reminders.size()));
         try {
+            Integer id = PersonalhrUtil.getParamAsInteger(request.getParameter("reminderIdField"));
             if(command != null && command.startsWith("Save")) {
-                Integer id = PersonalhrUtil.getParamAsInteger(request.getParameter("reminderIdField"));
-                LafUtil.getService().getReminderDao().saveLafReminder(reminders.get(id));                
-                log.debug("Reminder updated: " + reminders.get(id).getFollowProcedure().getName()+"/"+reminders.get(id).getTargetDate() + "/" + reminders.get(id).getResponseType() + "/" + reminders.get(id).getResponseComments());
-                request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, reminders.get(id).getFollowProcedure().getName()+"/"+reminders.get(id).getTargetDate() + " " + reminders.get(id).getResponseType());
+                 if(id >= 0) {
+                	LafUtil.getService().getReminderDao().saveLafReminder(reminders.get(id));                
+                	log.debug("Reminder updated: " + reminders.get(id).getFollowProcedure().getName()+"/"+reminders.get(id).getCompleteDate() + "/" + reminders.get(id).getResponseType() + "/" + reminders.get(id).getResponseComments());
+                	request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, reminders.get(id).getFollowProcedure().getName()+"/"+reminders.get(id).getCompleteDate() + " " + reminders.get(id).getResponseType());
+                } else {
+                	log.debug("Nothing is updated. command=" + command);
+                }
+            } else if(command != null && command.startsWith("Delete")) {
+                if(id >= 0) {
+                	LafUtil.getService().getReminderDao().deleteLafReminder(reminders.get(id));                
+                	log.debug("Reminder deleted: " + reminders.get(id).getFollowProcedure().getName()+"/"+reminders.get(id).getCompleteDate() + "/" + reminders.get(id).getResponseType() + "/" + reminders.get(id).getResponseComments());
+                	request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, reminders.get(id).getFollowProcedure().getName()+"/"+reminders.get(id).getCompleteDate() + " " + reminders.get(id).getResponseType());
+                } else {
+                	log.debug("Nothing is deleted. command=" + command);
+                }
             } 
             
             String successView = getSuccessView() + "?patientId=" + PersonalhrUtil.getParamAsInteger(request.getParameter("patientId"));

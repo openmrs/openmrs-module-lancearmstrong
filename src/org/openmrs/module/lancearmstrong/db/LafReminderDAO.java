@@ -62,4 +62,12 @@ public interface LafReminderDAO {
      */
     List<LafReminder> getLafReminders(Patient pat);
 
+	/**
+     * Auto generated method comment
+     * 
+     * @param pat
+     * @return
+     */
+    List<LafReminder> getLafRemindersCompleted(Patient pat);
+
 }

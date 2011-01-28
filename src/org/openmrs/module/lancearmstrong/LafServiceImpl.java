@@ -106,15 +106,16 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
      */
     @Override
     public List<LafReminder> getReminders(Patient pat) {
-	    // TODO Auto-generated method stub
-    	List<LafReminder> reminders = this.reminderDao.getLafReminders(pat);
-    	if(reminders == null) {
-    		reminders = updateReminders(pat);  
-    		//reminders = this.reminderDao.getLafReminders(pat);
-    	}
-    	
-	    return reminders;
+	    return findReminders(pat);
     }
+    
+    /**
+     * @see org.openmrs.module.lancearmstrong.LafService#getReminders(org.openmrs.Patient)
+     */
+    @Override
+    public List<LafReminder> getRemindersCompleted(Patient pat) {    	
+	    return reminderDao.getLafRemindersCompleted(pat);
+    }    
     
 	/**
      * @see org.openmrs.module.lancearmstrong.LafService#getReminders(org.openmrs.Patient)
@@ -238,7 +239,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
      * 
      * @param pat
      */
-    private List<LafReminder>  updateReminders(Patient pat) {
+    private List<LafReminder>  findReminders(Patient pat) {
     	//find cancer treatment summary encounter
     	/*
     	List<Encounter> encs = Context.getEncounterService().getEncountersByPatient(pat);    	    
@@ -289,7 +290,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 		    		reminder.setFollowProcedure(guideline.getFollowProcedure());
 		    		reminder.setTargetDate(dt);
 		    	    //update cancer_patient_reminder table
-		        	reminderDao.saveLafReminder(reminder);
+		        	//reminderDao.saveLafReminder(reminder);
 		        	reminders.add(reminder);
 	    		}
 	    	}   	

@@ -68,6 +68,14 @@ public interface LafService {
      * @param pat
      * @return
      */
+    List<LafReminder> getRemindersCompleted(Patient pat);
+
+    /**
+     * Auto generated method comment
+     * 
+     * @param pat
+     * @return
+     */
     List<Concept> getSideEffects(Patient pat);
 
 }

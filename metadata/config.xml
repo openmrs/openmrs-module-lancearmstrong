@@ -81,23 +81,16 @@
 	</globalProperty>
 	/Required Global Properties -->
 	
-	<!--
+	
 	<dwr>
 		<allow>
-			<create creator="new" javascript="DWRFormEntryService">
-				<param name="class" value="org.openmrs.module.@MODULE_ID@.web.DWRFormEntryService"/>
-				<include method="enterForm"/>
+			<create creator="new" javascript="DWRLafService">
+				<param name="class" value="org.openmrs.module.lancearmstrong.web.DWRLafService"/>
+				<include method="addFollowupCareCompleted"/>
 			</create>
 		</allow>
-
-		<signatures>
-			<![CDATA[
-			import @MODULE_PACKAGE@.web.DWRFormEntryService;
-			DWRFormEntryService.enterForm(Integer patientId, Integer formId, boolean useEncounter, List<String> fields);
-			]]>
-		</signatures>	
 	</dwr>
-	-->
+
 	
 	<!-- Servlets -->
 	<!-- Accessed through the url /pageContext()/moduleServlet/<moduleId>/<servlet-name> 
