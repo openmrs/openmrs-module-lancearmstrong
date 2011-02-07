@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.lancearmstrong;
 
+import java.util.Date;
 import java.util.List;
 
 import org.openmrs.Concept;
@@ -77,5 +78,14 @@ public interface LafService {
      * @return
      */
     List<Concept> getSideEffects(Patient pat);
+
+	/**
+     * Auto generated method comment
+     * 
+     * @param patient
+     * @param indexDate
+     * @return
+     */
+    List<LafReminder> getReminders(Patient patient, Date indexDate);
 
 }

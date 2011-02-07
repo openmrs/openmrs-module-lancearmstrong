@@ -15,6 +15,12 @@ package org.openmrs.module.lancearmstrong;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.api.context.Context;
+import org.openmrs.logic.rule.AgeRule;
+import org.openmrs.logic.rule.HIVPositiveRule;
+import org.openmrs.logic.rule.InvalidReferenceRuleException;
+import org.openmrs.logic.rule.provider.ClassRuleProvider;
+import org.openmrs.logic.token.TokenService;
 import org.openmrs.module.Activator;
 
 /**
@@ -28,6 +34,7 @@ public class LancearmstrongActivator implements Activator {
 	 * @see org.openmrs.module.Activator#startup()
 	 */
 	public void startup() {
+		registerDefaultRules();
 		log.info("Starting Cancer Toolkit Module");
 	}
 	
@@ -37,5 +44,13 @@ public class LancearmstrongActivator implements Activator {
 	public void shutdown() {
 		log.info("Shutting down Cancel Toolkit Module");
 	}
+	
+	public void registerDefaultRules() throws InvalidReferenceRuleException {
+		log.debug("registerDefaultRules called");
+		ClassRuleProvider crp = new ClassRuleProvider();
+		Context.getService(TokenService.class).registerToken("Follow-up Care Alert", crp, FollowupCareAlertRule.class.getName());
+		Context.getService(TokenService.class).initialize();
+	}
+	
 	
 }

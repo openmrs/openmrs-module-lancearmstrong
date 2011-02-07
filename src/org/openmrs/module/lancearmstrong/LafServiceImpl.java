@@ -50,7 +50,9 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     private final static String  CANCER_TREATMENT_SUMMARY_ENCOUNTER = "CANCER TREATMENT SUMMARY"; 
     private final static String  RADIATION_ENCOUNTER = "CANCER TREATMENT - RADIATION"; 
     private final static String  CHEMOTHERAPY_ENCOUNTER = "CANCER TREATMENT - CHEMOTHERAPY"; 
-    private final static String  SURGERY_ENCOUNTER = "CANCER TREATMENT - SURGERY"; 
+    private final static String  SURGERY_ENCOUNTER = "CANCER TREATMENT - SURGERY";
+    
+    private final static int ALERT_DAYS = 30; 
 	
     //ANY TREATMENT TYPE=0, CHEMOTHERAPY=1, RADIOLOGY=2, SURGERY=3
     //6225-6248: Concept ID's of side effects
@@ -107,6 +109,14 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     @Override
     public List<LafReminder> getReminders(Patient pat) {
 	    return findReminders(pat);
+    }
+ 
+	/**
+     * @see org.openmrs.module.lancearmstrong.LafService#getReminders(org.openmrs.Patient)
+     */
+    @Override
+    public List<LafReminder> getReminders(Patient pat, Date indexDate) {
+	    return findReminders(pat, indexDate);
     }
     
     /**
@@ -233,6 +243,130 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 		
 	}
 	    
+    private List<LafReminder> findReminders(Patient pat, Date indexDate) {
+    	//find surgery date
+    	Date surgDate = findLatestSurgeryDate(pat);
+    	
+    	//find radiation type
+    	Concept radType = findLatestRadiationType(pat);
+    	
+    	//find recommended intervals from follow-up care guidelines
+    	List<LafGuideline> guidelines = findGuidelines(pat);
+    	
+    	//find dates of latest follow-up cares from completed reminders
+    	List<LafReminder> remindersCompleted = getRemindersCompleted(pat);
+    	
+    	//compare with indexDate to determine reminder/alert for each guideline
+    	List<LafReminder> newReminders = new ArrayList<LafReminder>();    
+    	if(guidelines != null) {
+    		log.debug("Number of guidelines found = " + guidelines.size());
+	    	for(LafGuideline guideline : guidelines) {
+	    		LafReminder lastCompleted = findLastCompleted(remindersCompleted, guideline.getFollowProcedure());
+	    		Date targetDate = findNextTargetDate(surgDate, radType, guideline.getFollowYears(), lastCompleted);
+	    		Date alertDate = findAlertDate(targetDate);
+	    		log.debug("guideline="+guideline.getFollowProcedure() + ", years = " + guideline.getFollowYears());
+	    		log.debug("lastCompleted=" + lastCompleted);
+	    		log.debug("targetDate=" + targetDate);
+	    		log.debug("alertDate=" + alertDate);
+	    		    		    		
+	    		if(alertDate!= null && indexDate.after(alertDate)) {
+	    			log.debug("Alert is found for patient: " + pat + ", guideline=" + guideline + ", targetDate=" + targetDate + ", alertStartDate=" + alertDate);
+		    		LafReminder reminder = new LafReminder();
+		    		reminder.setPatient(pat);
+		    		reminder.setFollowProcedure(guideline.getFollowProcedure());
+		    		reminder.setTargetDate(targetDate);	    		
+		    		newReminders.add(reminder);
+	    		}
+	    	}   	
+    	} else {
+    		log.debug("No guidelines are found!");
+    	}
+
+    	log.debug("Number of alerts found = " + (newReminders==null? 0: newReminders.size()) + " on index date " + indexDate);
+
+    	return newReminders;    	
+    }    
+
+	/**
+     * Auto generated method comment
+     * 
+     * @param targetDate
+     * @return
+     */
+    private Date findAlertDate(Date targetDate) {
+	    // TODO Auto-generated method stub
+    	if(targetDate==null) return null;
+    	
+    	Calendar cal = Calendar.getInstance();
+    	cal.setTime(targetDate);
+    	cal.add(Calendar.DATE, -ALERT_DAYS);
+    	
+	    return cal.getTime();
+    }
+
+
+	/**
+     * Auto generated method comment
+     * 
+     * @param remindersCompleted
+     * @param followProcedure
+     * @return
+     */
+    private LafReminder findLastCompleted(List<LafReminder> remindersCompleted, Concept followProcedure) {
+	    // TODO Auto-generated method stub
+    	LafReminder lastCompletedReminder = null;
+    	for(LafReminder reminder : remindersCompleted) {
+    		if(reminder.getFollowProcedure().getId()==followProcedure.getId()) {
+    			if(lastCompletedReminder == null || lastCompletedReminder.getCompleteDate().before(reminder.getCompleteDate())) {
+    				lastCompletedReminder = reminder;
+    			} 
+    		}
+    	}
+	    return lastCompletedReminder;
+    }
+
+
+	/**
+     * Auto generated method comment
+     * 
+     * @param pat
+     */
+    private Date findLatestSurgeryDate(Patient pat) {   	
+	    //find surgery date
+    	Concept surgeryDateConcept = Context.getConceptService().getConcept(SURGERY_DATE);
+    	Obs surgeryDate = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, surgeryDateConcept));
+    	Date surgDate = surgeryDate==null? null : surgeryDate.getValueDatetime();
+    	return surgDate;
+     }
+    
+    private Concept findLatestRadiationType(Patient pat) {   	
+		//find rediation type
+		Concept radiationTypeConcept = Context.getConceptService().getConcept(RADIATION_TYPE);
+		Obs radiationType = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, radiationTypeConcept));
+		Concept radType = radiationType==null? null : radiationType.getValueCoded();
+		return radType;
+    }
+
+	/**
+     * Auto generated method comment
+     * 
+     * @param pat
+     */
+    private List<LafGuideline>  findGuidelines(Patient pat) {
+    	//find cancer type
+    	Concept cancerTypeConcept = Context.getConceptService().getConcept(CANCER_TYPE);
+    	Obs cancerType = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, cancerTypeConcept));
+    	Concept type = cancerType==null? null : cancerType.getValueCoded();
+    	//find cancer stage
+    	Concept cancerStageConcept = Context.getConceptService().getConcept(CANCER_STAGE);
+    	Obs cancerStage = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, cancerStageConcept));
+    	Concept stage = cancerStage==null? null : cancerStage.getValueCoded();
+        	
+    	//find follow-up years guidelines
+    	List<LafGuideline> guidelines = guidelineDao.getLafGuideline(type, stage);
+    	
+    	return guidelines;
+    }
 
 	/**
      * Auto generated method comment
@@ -260,7 +394,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     	Concept surgeryDateConcept = Context.getConceptService().getConcept(SURGERY_DATE);
     	Obs surgeryDate = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, surgeryDateConcept));
     	Date surgDate = surgeryDate==null? null : surgeryDate.getValueDatetime();
-    	//find rediation start date
+    	//find rediation type
     	Concept radiationTypeConcept = Context.getConceptService().getConcept(RADIATION_TYPE);
     	Obs radiationType = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, radiationTypeConcept));
     	Concept radType = radiationType==null? null : radiationType.getValueCoded();
@@ -300,7 +434,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     	
     	return reminders;
      }
-
+    
 	/**
      * Auto generated method comment
      * 
@@ -311,23 +445,20 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     private Date[] findTargetDates(Date surgDate, Concept radiationType, String followYears) {
     	String[] split1  = followYears.split(":");
     	String[] split2 = split1[0].split(",");
-     	Date startDate = surgDate;
-    	if(split1.length>=2 && "NO SURGERY".equals(split1[1])) {
-    		if(surgDate == null) {
-    			startDate = new Date();
-    		} 
-    	} else if(split1.length>=2 && "NO RADIATION".equals(split1[1])) {
+     	
+    	if(surgDate == null) {
+    		log.debug("No reminder will be generated because no surgery is found for this patient.");
+    		return null;
+    	}
+    	
+     	if(split1.length>=2 && "NO RADIATION".equals(split1[1])) {
     		if(radiationType != null) {
     			return null;
     		}
     	}
-    	
-    	if(startDate == null) {
-    		return null;
-    	}
-    	 
+    	    	 
+     	Date startDate = surgDate;
     	Date[] targetDates = new Date[split2.length];
-    	int index = 0;
     	for(int ii=0; ii<split2.length; ii++) {
     		targetDates[ii] = findDate(startDate, split2[ii]);    	    
     	}
@@ -338,6 +469,78 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 	/**
      * Auto generated method comment
      * 
+     * @param surgeryDate
+     * @param followYears
+     * @return
+     */
+    private Date findNextTargetDate(Date surgDate, Concept radiationType, String followYears, LafReminder lastCompleted) {
+    	String[] split1  = followYears.split(":");
+    	String[] split2 = split1[0].split(",");
+     	
+    	if(surgDate == null) {
+    		log.debug("No reminder will be generated because no surgery is found for this patient.");
+    		return null;
+    	}
+    	
+     	if(split1.length>=2 && "NO RADIATION".equals(split1[1])) {
+    		if(radiationType != null) {
+    			return null;
+    		}
+    	}
+
+     	Date startDate = surgDate;
+     	if(lastCompleted != null) {
+     		startDate = lastCompleted.getCompleteDate();
+     	}
+    	    	 
+    	Date nextTargetDate = null;
+    	Date refDate1 = surgDate;
+    	Date refDate2 = null;
+    	for(int ii=0; ii<split2.length; ii++) {
+    		refDate2 = findDate(surgDate, split2[ii]);
+    		
+    		if(startDate.before(refDate2)) {
+    			Date refDate12 = findMidDate(refDate1, refDate2);
+    			
+    			if(startDate.before(refDate12)) {
+    				nextTargetDate = findDate(startDate, split2[ii]);
+    			} else if(ii<split2.length - 1){
+    				nextTargetDate = findDate(startDate, split2[ii+1]);    				
+    			} else {
+    				nextTargetDate = null;
+    			}
+    			
+    			break;
+    		}
+    		
+    		refDate1 = refDate2;    		
+    	}
+	    // TODO Auto-generated method stub
+        return nextTargetDate;
+    }
+    
+	/**
+     * Auto generated method comment
+     * 
+     * @param refDate1
+     * @param refDate2
+     * @return
+     */
+    private Date findMidDate(Date refDate1, Date refDate2) {
+	    // TODO Auto-generated method stub
+    	long diffDays = (refDate2.getTime() - refDate1.getTime())/(1000*60*60*24); 
+    		
+    	Calendar cal = Calendar.getInstance();    	
+    	cal.setTime(refDate1);
+    	cal.add(Calendar.DATE, (int) diffDays/2);
+    	
+	    return cal.getTime();
+    }
+
+
+	/**
+     * Auto generated method comment
+     
      * @param startDate
      * @param string
      * @return
