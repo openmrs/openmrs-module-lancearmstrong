@@ -212,6 +212,13 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     			continue;
     		}
     		for(Integer sideEffId : sideEffectIds) {
+    			if("M".equals(pat.getGender()) && sideEffId.intValue()==6248) {
+    				continue; 
+    			} else if("F".equals(pat.getGender()) && sideEffId.intValue()==6247) {
+    				continue; 
+    			} else if(isDuplicate(sideEffId, sideEffects)) {
+    				continue;
+    			}
     			Concept sideEffect = Context.getConceptService().getConcept(sideEffId);
     			sideEffects.add(sideEffect);//sideEffect.getName().getName(); sideEffect.getDescription().getChangedBy();
     			log.debug("side effect found: " + sideEffId + "|" + sideEffect.getName().getName() + " for key " + key);
@@ -222,7 +229,25 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 	    return sideEffects;
     } 
     
-    private Encounter findCancerTreatment(Patient pat, String encounterType) {
+    /**
+     * Auto generated method comment
+     * 
+     * @param sideEffId
+     * @param sideEffects
+     * @return
+     */
+    private boolean isDuplicate(Integer sideEffId, List<Concept> sideEffects) {
+	    // TODO Auto-generated method stub
+    	for(Concept sd : sideEffects) {
+    		if(sd.getId().intValue()==sideEffId.intValue()) {
+    			return true;
+    		}
+    	}
+	    return false;
+    }
+
+
+	private Encounter findCancerTreatment(Patient pat, String encounterType) {
     	//find cancer treatment summary encounter	
 		List<Encounter> encs = Context.getEncounterService().getEncountersByPatient(pat);    	    
 		Integer encId = null;
@@ -503,9 +528,11 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     			Date refDate12 = findMidDate(refDate1, refDate2);
     			
     			if(startDate.before(refDate12)) {
-    				nextTargetDate = findDate(startDate, split2[ii]);
+    				//nextTargetDate = findDate(startDate, split2[ii]);
+    				nextTargetDate = findDate(refDate1, split2[ii]);
     			} else if(ii<split2.length - 1){
-    				nextTargetDate = findDate(startDate, split2[ii+1]);    				
+    				//nextTargetDate = findDate(startDate, split2[ii+1]);    				
+    				nextTargetDate = findDate(refDate1, split2[ii+1]);    				
     			} else {
     				nextTargetDate = null;
     			}

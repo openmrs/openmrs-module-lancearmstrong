@@ -13,6 +13,8 @@
 			   <prop key="**/lancearmstrong/portlets/patientTreatmentSummary.portlet">patientTreatmentSummaryPortletController</prop>
 			   <prop key="**/lancearmstrong/portlets/htmlFormEntryForm.portlet">htmlFormEntryController</prop>
 			   <prop key="**/lancearmstrong/portlets/patientToxicities.portlet">patientToxicitiesPortletController</prop>
+			   <prop key="module/lancearmstrong/followCareAlertForm.form">followCareAlertForm</prop>
+			   <prop key="**/lancearmstrong/portlets/followCareAlert.portlet">followCareAlertForm</prop>
 			</props>
 		</property>
     </bean>
@@ -59,6 +61,14 @@
 		<property name="commandName"><value>patient</value></property>
 		<property name="formView"><value>/module/lancearmstrong/view/patientFollowCareForm</value></property>
 		<property name="successView"><value>patientFollowCareForm.form</value></property>
+	</bean>
+	
+	<bean id="followCareAlertForm"
+		class="org.openmrs.module.lancearmstrong.web.controller.FollowCareAlertFormController">
+		<property name="sessionForm"><value>true</value></property>
+		<property name="commandName"><value>patient</value></property>
+		<property name="formView"><value>/module/lancearmstrong/view/followCareAlertForm</value></property>
+		<property name="successView"><value>followCareAlertForm.form</value></property>
 	</bean>
     
 </beans>

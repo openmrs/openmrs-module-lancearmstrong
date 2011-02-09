@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.lancearmstrong.LafPatient;
 import org.openmrs.module.lancearmstrong.LafReminder;
 import org.openmrs.module.lancearmstrong.LafUtil;
 
@@ -45,5 +46,9 @@ public class DWRLafService {
 		newReminder.setResponseUser(Context.getAuthenticatedUser());
 		
 		LafUtil.getService().getReminderDao().saveLafReminder(newReminder);
+	}
+	
+	public LafPatient getLafPatient() {
+		return new LafPatient(null, null, null);
 	}
 }

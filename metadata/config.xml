@@ -51,6 +51,10 @@
 		<point>org.openmrs.module.personalhr.patientDashboardTab</point>
 		<class>@MODULE_PACKAGE@.extension.html.PatientCommunities</class>
 	</extension>
+	<extension>
+		<point>org.openmrs.module.personalhr.alertBar</point>
+		<class>@MODULE_PACKAGE@.extension.html.FollowCareAlert</class>
+	</extension>
 	
 	
 	<!-- AOP
@@ -87,6 +91,7 @@
 			<create creator="new" javascript="DWRLafService">
 				<param name="class" value="org.openmrs.module.lancearmstrong.web.DWRLafService"/>
 				<include method="addFollowupCareCompleted"/>
+				<include method="getLafPatient"/>
 			</create>
 		</allow>
 	</dwr>

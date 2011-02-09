@@ -22,6 +22,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
+import org.openmrs.api.context.Context;
 import org.openmrs.logic.LogicContext;
 import org.openmrs.logic.LogicException;
 import org.openmrs.logic.Rule;
@@ -47,7 +48,12 @@ public class FollowupCareAlertRule implements Rule {
 		List<LafReminder> reminders = LafUtil.getService().getReminders(patient, context.getIndexDate());
 		Result finalResult = new Result();
 		for(LafReminder reminder : reminders) {
-			Result result = new Result(reminder.getFollowProcedure());
+			String isDue = " is due on ";
+			if(reminder.getTargetDate().before(context.getIndexDate())) {
+				isDue = " was due on ";
+			}
+			reminder.getFollowProcedure().setRetireReason(reminder.getFollowProcedure().getDisplayString() + isDue + Context.getDateFormat().format(reminder.getTargetDate()));
+			Result result = new Result(reminder.getFollowProcedure() );
 			finalResult.add(result);
 		}
 		return finalResult;		
