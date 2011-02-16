@@ -14,7 +14,7 @@
 	<openmrs:htmlInclude file="/moduleResources/lancearmstrong/autoresize.jquery.js" />
 <script type="text/javascript">
 	$j(document).ready(function(){
-		$j('input[type="button"]').attr('disabled','disabled'); 				
+		//$j('input[type="button"]').attr('disabled','disabled'); 				
     });
 
 
@@ -60,7 +60,8 @@
 	
 	function onUpdate(index, reminderId) {
 		$j('#reminderIdField').val(index);
-		$j('#saveChanges'+reminderId).attr("disabled", 'disabled');
+		//$j('#saveChanges'+reminderId).attr("disabled", 'disabled');
+		return true;
 	}
 
 	function onDelete(index, reminderId) {
@@ -163,7 +164,7 @@ Below is a list of recommended follow-up care. Please keep these records up-to-d
 			</spring:bind>
 			    </td>
 			    <td align="center">
-					<input type="button" value="<spring:message code="general.save" />" name="command" id="saveChanges${reminder.id}" onClick="onUpdate(${status.index}, ${reminder.id});return true;" />
+					<input type="submit" value="<spring:message code="general.save" />" name="command" id="saveChanges${reminder.id}" disabled="disabled" onClick="onUpdate(${status.index}, ${reminder.id});return true;" />
 					<input type="submit" value="<spring:message code="general.delete" />" name="command" id="deleteChanges${reminder.id}" onClick="onDelete(${status.index}, ${reminder.id});return true;"/>
 			    </td>
 			  </tr> 

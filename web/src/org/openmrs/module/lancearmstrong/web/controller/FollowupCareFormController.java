@@ -79,9 +79,9 @@ public class FollowupCareFormController extends SimpleFormController {
             if(command!=null && command.startsWith("Save")) {
                 for(LafReminder reminder : reminders) {
                   //validate complete date
-                  if(reminder.getCompleteDate()==null || reminder.getCompleteDate().before(new Date(1900, 1, 1))) {
-                    log.debug("Complete date cannot be empty or too early!");  
-                    errors.reject("Complete date cannot be empty or too early!");  
+                  if(reminder.getCompleteDate()==null ) {
+                    log.debug("Complete date cannot be empty!  completeDate=" + reminder.getCompleteDate());  
+                    errors.reject("Complete date cannot be empty!");  
                   }                  
                 }
             }                  
