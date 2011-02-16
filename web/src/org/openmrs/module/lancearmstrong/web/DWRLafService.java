@@ -14,6 +14,7 @@
  */
 package org.openmrs.module.lancearmstrong.web;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class DWRLafService {
     
 	public void addFollowupCareCompleted(Integer patientId, Date completeDate, String careType, String docName, String resultType, String comments) {
 		log.debug("Calling DWRLafService.addFollowupCareCompleted...patientId=" + patientId + ",completeDate=" + completeDate + 
-			       ",careType=" + careType + "/" + Context.getConceptService().getConcept(careType));
+			       ",careType=" + careType);
 		LafReminder newReminder = new LafReminder();		
 		newReminder.setPatient(Context.getPatientService().getPatient(patientId));
 		newReminder.setId(null);
@@ -46,6 +47,61 @@ public class DWRLafService {
 		newReminder.setResponseUser(Context.getAuthenticatedUser());
 		
 		LafUtil.getService().getReminderDao().saveLafReminder(newReminder);
+	}
+	
+	public void followupCareCompleted(Integer patientId, Date completeDate, Integer careType, String docName, String resultType, String comments) {
+		log.debug("Calling DWRLafService.followupCareCompleted...patientId=" + patientId + ",completeDate=" + completeDate + 
+			       ",careType=" + careType + "/" + Context.getConceptService().getConcept(careType));
+		LafReminder newReminder = new LafReminder();		
+		newReminder.setPatient(Context.getPatientService().getPatient(patientId));
+		newReminder.setId(null);
+		newReminder.setCompleteDate(completeDate);
+		newReminder.setResponseType(resultType);
+		newReminder.setFollowProcedure(Context.getConceptService().getConcept(careType));
+		newReminder.setResponseComments(comments);
+		newReminder.setResponseAttributes(docName);
+		newReminder.setResponseDate(new Date());
+		newReminder.setResponseUser(Context.getAuthenticatedUser());
+		
+		LafUtil.getService().getReminderDao().saveLafReminder(newReminder);
+	}
+	
+	public void followupCareScheduled(Integer patientId, Date scheduleDate, Integer careType, Date targetDate) {
+		log.debug("Calling DWRLafService.followupCareScheduled...patientId=" + patientId + ", scheduleDate=" + scheduleDate + ",careType=" + careType + ", targetDate=" + targetDate);
+		
+		LafReminder reminder = LafUtil.getService().getReminderDao().getLafReminder(Context.getPatientService().getPatient(patientId), Context.getConceptService().getConcept(careType), targetDate);
+		if(reminder != null) {
+			reminder.setResponseAttributes("scheduleDate="+Context.getDateFormat().format(scheduleDate));			
+		} else {		
+			reminder = new LafReminder();		
+			reminder.setPatient(Context.getPatientService().getPatient(patientId));
+			reminder.setId(null);
+			reminder.setFollowProcedure(Context.getConceptService().getConcept(careType));
+			reminder.setTargetDate(targetDate);
+			reminder.setResponseAttributes("scheduleDate="+Context.getDateFormat().format(scheduleDate));
+		}
+		LafUtil.getService().getReminderDao().saveLafReminder(reminder);
+	}	
+	
+	public void followupCareSnooze(Integer patientId, Integer snoozeDays, Integer careType, Date targetDate) {
+		log.debug("Calling DWRLafService.followupCareScheduled...patientId=" + patientId + ", snoozeDays=" + snoozeDays + ",careType=" + careType + ", targetDate=" + targetDate);
+		
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, snoozeDays);
+		Date scheduleDate = cal.getTime();
+		
+		LafReminder reminder = LafUtil.getService().getReminderDao().getLafReminder(Context.getPatientService().getPatient(patientId), Context.getConceptService().getConcept(careType), targetDate);
+		if(reminder != null) {
+			reminder.setResponseAttributes("snoozeDate="+Context.getDateFormat().format(scheduleDate));			
+		} else {		
+			reminder = new LafReminder();		
+			reminder.setPatient(Context.getPatientService().getPatient(patientId));
+			reminder.setId(null);
+			reminder.setFollowProcedure(Context.getConceptService().getConcept(careType));
+			reminder.setTargetDate(targetDate);
+			reminder.setResponseAttributes("snoozeDate="+Context.getDateFormat().format(scheduleDate));
+		}
+		LafUtil.getService().getReminderDao().saveLafReminder(reminder);
 	}
 	
 	public LafPatient getLafPatient() {

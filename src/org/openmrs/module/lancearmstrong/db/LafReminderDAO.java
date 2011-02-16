@@ -13,8 +13,10 @@
  */
 package org.openmrs.module.lancearmstrong.db;
 
+import java.util.Date;
 import java.util.List;
 
+import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.module.lancearmstrong.LafReminder;
 
@@ -69,5 +71,15 @@ public interface LafReminderDAO {
      * @return
      */
     List<LafReminder> getLafRemindersCompleted(Patient pat);
+
+	/**
+     * Auto generated method comment
+     * 
+     * @param patient
+     * @param careType
+     * @param targetDate
+     * @return
+     */
+    LafReminder getLafReminder(Patient patient, Concept careType, Date targetDate);
 
 }

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
+import org.openmrs.User;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.lancearmstrong.LafPatient;
 import org.openmrs.module.lancearmstrong.LafReminder;
@@ -53,16 +54,22 @@ public class FollowCareAlertFormController extends SimpleFormController {
     @Override
     protected LafPatient formBackingObject(HttpServletRequest request) throws Exception {
         log.debug("Entering FollowCareAlertFormController:formBackingObject");
+		
+		User user = Context.getAuthenticatedUser();
+		log.debug("Logged in as user: " + (user == null ? null : user.getUsername()));
+		
         Integer patientId = null;
         Patient pat = null;
-        if (request.getParameter("patientId") != null && !"".equals(request.getParameter("patientId"))) {
-            patientId = PersonalhrUtil.getParamAsInteger(request.getParameter("patientId"));
-            if(patientId==null) {
-            	patientId = (Integer) request.getAttribute("patientId");
-            }
-            log.debug("patientId=" + patientId);
-            
-            pat = Context.getPatientService().getPatient(patientId);
+        if(user != null) {
+	        if (request.getParameter("patientId") != null && !"".equals(request.getParameter("patientId"))) {
+	            patientId = PersonalhrUtil.getParamAsInteger(request.getParameter("patientId"));
+	            if(patientId==null) {
+	            	patientId = (Integer) request.getAttribute("patientId");
+	            }
+	            log.debug("patientId=" + patientId);
+	            
+	            pat = Context.getPatientService().getPatient(patientId);
+	        }
         }
         
         return new LafPatient(pat, null, null);         

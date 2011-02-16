@@ -1,6 +1,5 @@
 <%@ include file="/WEB-INF/template/include.jsp" %>
 <%@ include file="/WEB-INF/template/headerMinimal.jsp" %>
-	<openmrs:htmlInclude file="/scripts/jquery/jquery-1.3.2.min.js" />
 	<script type="text/javascript">
 		$j = jQuery.noConflict();
 	</script>
@@ -9,26 +8,14 @@
 	<openmrs:htmlInclude file="/dwr/util.js" />
 	<openmrs:htmlInclude file="/dwr/interface/DWRLafService.js" />
 	<openmrs:htmlInclude file="/moduleResources/lancearmstrong/lancearmstrong.css" />
-	<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.2.custom.css" />
-	<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-1.4.2.min.js" />
-	<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.2.custom.min.js" />
+	<openmrs:htmlInclude file="/moduleResources/lancearmstrong/jquery-1.4.4.min.js" />
+	<openmrs:htmlInclude file="/moduleResources/lancearmstrong/jquery-ui-1.8.9.custom.css" />
+	<openmrs:htmlInclude file="/moduleResources/lancearmstrong/jquery-ui-1.8.9.custom.min.js" />
 	<openmrs:htmlInclude file="/moduleResources/lancearmstrong/autoresize.jquery.js" />
 <script type="text/javascript">
 	$j(document).ready(function(){
-		$('textarea.expandable').autoResize({
-		    // On resize:
-		    onResize : function() {
-		        $(this).css({opacity:0.8});
-		    },
-		    // After resize:
-		    animateCallback : function() {
-		        $(this).css({opacity:1});
-		    },
-		    // Quite slow animation:
-		    animateDuration : 300,
-		    // More extra space:
-		    extraSpace : 40
-		});	});
+		$j('input[type="button"]').attr('disabled','disabled'); 				
+    });
 
 
 	function onAddCare(){
@@ -68,12 +55,12 @@
 	}	
 	
 	function onChange(reminderId) {
-		$j('#saveChanges'+reminderId).attr("disabled", false);
+		$j('#saveChanges'+reminderId).removeAttr("disabled");
 	}	
 	
 	function onUpdate(index, reminderId) {
 		$j('#reminderIdField').val(index);
-		$j('#saveChanges'+reminderId).attr("disabled", false);
+		$j('#saveChanges'+reminderId).attr("disabled", 'disabled');
 	}
 
 	function onDelete(index, reminderId) {
@@ -176,7 +163,7 @@ Below is a list of recommended follow-up care. Please keep these records up-to-d
 			</spring:bind>
 			    </td>
 			    <td align="center">
-					<input type="submit" value="<spring:message code="general.save" />" name="command" id="saveChanges${reminder.id}" onClick="onUpdate(${status.index}, ${reminder.id});return true;" disabled="true"/>
+					<input type="button" value="<spring:message code="general.save" />" name="command" id="saveChanges${reminder.id}" onClick="onUpdate(${status.index}, ${reminder.id});return true;" />
 					<input type="submit" value="<spring:message code="general.delete" />" name="command" id="deleteChanges${reminder.id}" onClick="onDelete(${status.index}, ${reminder.id});return true;"/>
 			    </td>
 			  </tr> 

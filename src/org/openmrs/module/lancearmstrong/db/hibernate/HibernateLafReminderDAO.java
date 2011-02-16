@@ -1,7 +1,10 @@
 package org.openmrs.module.lancearmstrong.db.hibernate;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
+import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.lancearmstrong.LafReminder;
@@ -105,6 +108,46 @@ public class HibernateLafReminderDAO implements LafReminderDAO {
             return list;
         else
             return null;
+    }
+
+	/**
+     * @see org.openmrs.module.lancearmstrong.db.LafReminderDAO#getLafReminder(java.lang.Integer, java.lang.Integer, java.util.Date)
+     */
+    @Override
+    public LafReminder getLafReminder(Patient pat, Concept careType, Date targetDate) {
+        Criteria crit = sessionFactory.getCurrentSession().createCriteria(LafReminder.class);
+        crit.add(Restrictions.eq("patient", pat));
+        crit.add(Restrictions.eq("followProcedure", careType));
+        crit.add(Restrictions.ge("targetDate", targetDate));
+        crit.add(Restrictions.lt("targetDate", oneDayLater(targetDate)));
+        crit.add(Restrictions.isNull("completeDate"));
+        crit.addOrder(Order.asc("targetDate"));
+        List<LafReminder> list = (List<LafReminder>) crit.list();
+        if (list.size() == 1) {
+        	log.debug("One reminder is found: patient=" + pat + "|careType=" + careType + "|targetDate=" + targetDate);        	
+            return list.get(0);
+        }
+        else if(list.size() > 1) {
+        	log.error("More than one reminder is found: patient=" + pat + "|careType=" + careType + "|targetDate=" + targetDate);
+        	return list.get(0);
+        }
+        else
+            return null;
+    }
+
+	/**
+     * Auto generated method comment
+     * 
+     * @param targetDate
+     * @return
+     */
+    private Date oneDayLater(Date targetDate) {
+	    // TODO Auto-generated method stub
+    	Calendar cal =Calendar.getInstance();
+    	cal.setTime(targetDate);
+    	cal.add(Calendar.DATE, 1);
+    	
+	    return cal.getTime();
     }
 
 }

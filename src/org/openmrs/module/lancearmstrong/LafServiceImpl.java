@@ -12,6 +12,7 @@
  */
 package org.openmrs.module.lancearmstrong;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -288,7 +289,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 	    	for(LafGuideline guideline : guidelines) {
 	    		LafReminder lastCompleted = findLastCompleted(remindersCompleted, guideline.getFollowProcedure());
 	    		Date targetDate = findNextTargetDate(surgDate, radType, guideline.getFollowYears(), lastCompleted);
-	    		Date alertDate = findAlertDate(targetDate);
+	    		Date alertDate = findAlertDate(pat, guideline.getFollowProcedure(), targetDate); //based on default offset of 30 days and user response to earlier alert
 	    		log.debug("guideline="+guideline.getFollowProcedure() + ", years = " + guideline.getFollowYears());
 	    		log.debug("lastCompleted=" + lastCompleted);
 	    		log.debug("targetDate=" + targetDate);
@@ -296,11 +297,18 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 	    		    		    		
 	    		if(alertDate!= null && indexDate.after(alertDate)) {
 	    			log.debug("Alert is found for patient: " + pat + ", guideline=" + guideline + ", targetDate=" + targetDate + ", alertStartDate=" + alertDate);
-		    		LafReminder reminder = new LafReminder();
-		    		reminder.setPatient(pat);
-		    		reminder.setFollowProcedure(guideline.getFollowProcedure());
-		    		reminder.setTargetDate(targetDate);	    		
-		    		newReminders.add(reminder);
+	    			
+	    			//find snooze date or schedule date for this reminder
+	    			StringBuffer sb = new StringBuffer();
+	    			Date ssDate = findSnoozeOrScheduleDate(pat, guideline.getFollowProcedure(), targetDate, sb);
+	    			
+	    			if(ssDate == null || ssDate.before(alertDate)) {
+			    		LafReminder reminder = new LafReminder();
+			    		reminder.setPatient(pat);
+			    		reminder.setFollowProcedure(guideline.getFollowProcedure());
+			    		reminder.setTargetDate(targetDate);	    		
+			    		newReminders.add(reminder);
+	    			}
 	    		}
 	    	}   	
     	} else {
@@ -315,16 +323,55 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 	/**
      * Auto generated method comment
      * 
+     * @param followProcedure
+     * @param targetDate
+	 * @param sb 
+     * @return
+     */
+    private Date findSnoozeOrScheduleDate(Patient patient, Concept careType, Date targetDate, StringBuffer sb) {
+	    LafReminder reminder = this.reminderDao.getLafReminder(patient, careType, targetDate);
+	    
+	    Date ssDate = null;
+	    String ssType = null;
+	    if(reminder != null) {
+	    	String[] splits = reminder.getResponseAttributes().split("=");
+	    	if(splits.length >=2) {
+	    		ssType = splits[0];
+	    		if("snoozeDate".equals(ssType) || "scheduleDate".equals(ssType)) {
+	    			try {
+	    				ssDate = Context.getDateFormat().parse(splits[1]);
+	    			} catch (ParseException e) {
+		    			log.error("Bad date format: ssType=" + ssType + ", ssDate=" + ssDate);	    				
+	    			}
+	    			log.debug("This reminder is snoozed or scheduled: ssType=" + ssType + ", ssDate=" + ssDate);
+	    		} else {
+	    			log.warn("Unknown attribute type is found: " + reminder.getResponseAttributes());
+	    		}
+	    	}
+	    }
+	    sb.append(ssType);
+	    
+	    return ssDate;
+    }
+
+
+	/**
+     * Auto generated method comment
+	 * @param careType 
+	 * @param pat 
+     * 
      * @param targetDate
      * @return
      */
-    private Date findAlertDate(Date targetDate) {
+    private Date findAlertDate(Patient pat, Concept careType, Date targetDate) {
 	    // TODO Auto-generated method stub
     	if(targetDate==null) return null;
-    	
+    	    	
     	Calendar cal = Calendar.getInstance();
     	cal.setTime(targetDate);
     	cal.add(Calendar.DATE, -ALERT_DAYS);
+		
+    	log.debug("alertDate=" + cal.getTime() + " based on offset of " + ALERT_DAYS + "days");
     	
 	    return cal.getTime();
     }

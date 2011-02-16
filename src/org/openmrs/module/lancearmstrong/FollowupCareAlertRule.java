@@ -53,6 +53,7 @@ public class FollowupCareAlertRule implements Rule {
 				isDue = " was due on ";
 			}
 			reminder.getFollowProcedure().setRetireReason(reminder.getFollowProcedure().getDisplayString() + isDue + Context.getDateFormat().format(reminder.getTargetDate()));
+			reminder.getFollowProcedure().setDateRetired(reminder.getTargetDate());
 			Result result = new Result(reminder.getFollowProcedure() );
 			finalResult.add(result);
 		}

@@ -49,29 +49,36 @@ public class ForEachAlertTag extends LoopTagSupport {
 		
 		alerts = null;
 		
-		try {
-			LogicService ls = Context.getLogicService();
+		try {			
+			user = Context.getAuthenticatedUser();
 			
-			if(user == null) {
-			    user = Context.getAuthenticatedUser();
-			}
+			log.debug("Logged in as user: " + (user == null ? null : user.getUsername()));
 			
 			if(user!=null) {
     			Patient pat = Context.getPatientService().getPatient(user.getPerson().getId());
-    			
+    			if(pat == null) {
+    				log.debug("Current user is not a patient!");
+    				return;
+    			}
+    				
     			log.debug("Parsing logic rule...");
+    			LogicService ls = Context.getLogicService();
     			Result result = ls.eval(pat, ls.parse("\"Follow-up Care Alert\""));
     			
     			if(result != null) {
         			List<Alert> alertList = new ArrayList<Alert>();
         			ListIterator<Result> iter = result.listIterator();
+        			int alertId = 0;
         			while(iter.hasNext()) {
         			    Result res = iter.next();
         			    Alert alert = new Alert();
         			    Datatype dataType = res.getDatatype();
         			    if(Datatype.CODED==dataType) {
-                            log.debug("Alert found: " + res.toConcept().getRetireReason());
-        			        alert.setText(res.toConcept().getRetireReason());
+        			    	alertId = res.toConcept().getId();
+                            log.debug("Alert found (" + alertId + "): " + res.toConcept().getRetireReason());
+                            alert.setAlertId(alertId);
+                            alert.setDateToExpire(res.toConcept().getDateRetired());
+        			        alert.setText(res.toConcept().getRetireReason());        			        
         			        alertList.add(alert);
         			    } else {
         			        log.debug("Non coded datatype: " + dataType);
