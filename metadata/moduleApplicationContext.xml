@@ -12,6 +12,7 @@
 			   <prop key="module/lancearmstrong/patientFollowCareForm.form">patientFollowCareForm</prop>
 			   <prop key="**/lancearmstrong/portlets/patientTreatmentSummary.portlet">patientTreatmentSummaryPortletController</prop>
 			   <prop key="**/lancearmstrong/portlets/htmlFormEntryForm.portlet">htmlFormEntryController</prop>
+			   <prop key="module/lancearmstrong/htmlFormEntryForm.form">LafHtmlFormEntryController</prop>
 			   <prop key="**/lancearmstrong/portlets/patientToxicities.portlet">patientToxicitiesPortletController</prop>
 			   <prop key="module/lancearmstrong/followCareAlertForm.form">followCareAlertForm</prop>
 			   <prop key="**/lancearmstrong/portlets/followCareAlert.portlet">followCareAlertForm</prop>
@@ -70,5 +71,15 @@
 		<property name="formView"><value>/module/lancearmstrong/view/followCareAlertForm</value></property>
 		<property name="successView"><value>followCareAlertForm.form</value></property>
 	</bean>
+	
+    <!-- This is where we actually enter/view/edit a form -->
+    <bean id="LafHtmlFormEntryController" class="org.openmrs.module.lancearmstrong.web.controller.HtmlFormEntryController">
+    	<property name="sessionForm"><value>false</value></property>
+		<property name="commandName"><value>command</value></property>
+		<property name="formView"><value>/module/lancearmstrong/view/htmlFormEntry</value></property>
+		<property name="closeDialogView"><value>/module/htmlformentry/closeDialog</value></property>
+		<property name="successView"><value>/module/lancearmstrong/htmlFormEntryForm.form</value></property>
+    </bean>
+	
     
 </beans>
