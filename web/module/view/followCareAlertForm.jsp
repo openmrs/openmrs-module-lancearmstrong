@@ -290,4 +290,33 @@
 			</c:if>
 		</laf:forEachAlert>
 </div>			
+<script type="text/javascript">
+		$j('#markAsCompletedPopup').dialog({
+			title: 'dynamic',
+			autoOpen: false,
+			draggable: false,
+			resizable: false,
+			width: '50%',
+			modal: true,
+			open: function(a, b) {  }
+		});	
+		$j('#markAsScheduledPopup').dialog({
+			title: 'dynamic',
+			autoOpen: false,
+			draggable: false,
+			resizable: false,
+			width: '50%',
+			modal: true,
+			open: function(a, b) {  }
+		});		
+		$j('#markAsSnoozePopup').dialog({
+			title: 'dynamic',
+			autoOpen: false,
+			draggable: false,
+			resizable: false,
+			width: '50%',
+			modal: true,
+			open: function(a, b) {  }
+		});				
+</script>
 			
