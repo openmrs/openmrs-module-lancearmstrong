@@ -1,4 +1,4 @@
-<%@ include file="/WEB-INF/template/include.jsp" %>
+<%@ include file="/WEB-INF/view/module/personalhr/template/include.jsp" %>
 <openmrs:htmlInclude file="/scripts/easyAjax.js" />
 
 <openmrs:htmlInclude file="/scripts/jquery/dataTables/css/dataTables.css" />
@@ -7,10 +7,12 @@
 <openmrs:globalProperty key="dashboard.encounters.showViewLink" var="showViewLink" defaultValue="true"/>
 <openmrs:globalProperty key="dashboard.encounters.showEditLink" var="showEditLink" defaultValue="true"/>
 
+<c:set var="foundSummary" value="false"/>
 
 <div id="treatmentSummaryPortlet"">
 		<c:forEach items='${openmrs:sort(model.patientEncounters, "encounterDatetime", true)}' var="enc" varStatus="encStatus">
-			<c:if test="${enc.encounterType.name == 'CANCER TREATMENT SUMMARY'}">
+			<c:if test="${enc.encounterType.name == 'CANCER TREATMENT SUMMARY' && foundSummary=='false'}">
+				<c:set var="foundSummary" value="true"/>			
 				<iframe src ="${pageContext.request.contextPath}/module/lancearmstrong/htmlFormEntryForm.form?encounterId=${enc.encounterId}&mode=EDIT&inTab=true" width="100%" height="1000">
 				  Loading Cancer Treatment Summary ...
 				</iframe>
@@ -20,4 +22,8 @@
 	        </c:if>					
 		</c:forEach>
 </div>
+
+<c:if test="${foundSummary=='false'}">
+	<personalhr:portlet url="../module/personalhr/portlets/personFormEntry.portlet" id="formEntryPortlet" personId="${patient.personId}" parameters="showDecoration=true|showLastThreeEncounters=true|returnUrl=${pageContext.request.contextPath}/phr/patientDashboard.form"/>
+</c:if>			
 
