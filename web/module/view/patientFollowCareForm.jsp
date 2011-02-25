@@ -76,6 +76,13 @@
 			
 </script>
 
+<c:choose>
+<c:when test="${patient.reminders==null}">
+<div class="tooltip">
+Customized follow-up care recommendation is not available. Please enter your cancer summary and surgery information in the Treatment Summary panel in order to see the recommendation.
+</div>  
+</c:when>
+<c:otherwise>
 <div class="tooltip">
 Below is a list of recommended follow-up care. Please keep these records up-to-date by updating corresponding fields when you respond to an alert that reminds you of individual care at appropriate time.  
 </div>
@@ -221,4 +228,6 @@ Below is a list of recommended follow-up care. Please keep these records up-to-d
 		<button id="cancelAddCare" onClick="onAddCare();return false;">Cancel</button>
 	</div>	
 </div>
+</c:otherwise>
+</c:choose>
 <%@ include file="/WEB-INF/template/footerMinimal.jsp" %>

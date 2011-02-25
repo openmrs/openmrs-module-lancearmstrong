@@ -466,6 +466,11 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     	Concept surgeryDateConcept = Context.getConceptService().getConcept(SURGERY_DATE);
     	Obs surgeryDate = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, surgeryDateConcept));
     	Date surgDate = surgeryDate==null? null : surgeryDate.getValueDatetime();
+    	if(surgDate == null) {
+    		log.warn("No surgery is found for this patient: " + pat);
+    		return null;
+    	}
+    	
     	//find rediation type
     	Concept radiationTypeConcept = Context.getConceptService().getConcept(RADIATION_TYPE);
     	Obs radiationType = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, radiationTypeConcept));
