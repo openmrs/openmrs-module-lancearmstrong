@@ -34,7 +34,7 @@ public class LancearmstrongActivator implements Activator {
 	 * @see org.openmrs.module.Activator#startup()
 	 */
 	public void startup() {
-		registerDefaultRules();
+		//registerDefaultRules();
 		log.info("Starting Cancer Toolkit Module");
 	}
 	

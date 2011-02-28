@@ -28,6 +28,7 @@
 	<require_modules>  	
 	     <require_module>org.openmrs.module.personalhr</require_module>  	
 	     <require_module>org.openmrs.module.htmlformentry</require_module>  	
+	     <require_module>org.openmrs.module.htmlformflowsheet</require_module>  	
 	</require_modules> 
 
 	
