@@ -114,13 +114,25 @@
 		var resultType = $j('#resultTypeNew').val();
 		var comments = $j('#commentsNew').val();
 		var refDate = new Date(1900,1,1);
+		var now = new Date();
 
 		if(refDate.getTime()-completeDate.getTime() > 0) {
 			alert("Complete date cannot be null or too early!");
 			$j('#completeDateNew').focus();
 			return -1;
+		} else if(completeDate.getTime() - now.getTime() > 0) {
+			alert("Complete date cannot be in the future!");
+			$j('#completeDateNew').focus();
+			return -1;
 		}
-		DWRLafService.followupCareCompleted(patientId, completeDate, careType, docName, resultType, comments);
+		DWRLafService.followupCareCompleted(patientId, completeDate, careType, docName, resultType, comments,
+				{
+			  		callback:function(str) { 
+			    		location.reload(true);
+			  		}
+			  	}
+		);
+				
 		return 0;
 	}	
 	
