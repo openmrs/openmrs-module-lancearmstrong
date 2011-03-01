@@ -149,7 +149,7 @@ Below is a list of recommended follow-up care. Please keep these records up-to-d
 			    <td>
 					<form:select path="patient.remindersCompleted[${status.index}].followProcedureName" onchange="onChange(${reminder.id})">
 						<c:forEach items="${patient.careTypes}" var="careType">
-							<option value="${careType}" label="${careType}" <c:if test="${careType == reminder.followProcedure.name}">selected="selected"</c:if>/>
+							<option value="${careType}" label="${careType}" <c:if test="${careType == reminder.followProcedure.name}">selected="selected"</c:if>>${careType}</option>
 						</c:forEach>
 			    	</form:select>
 		    	</td>			    
@@ -161,7 +161,7 @@ Below is a list of recommended follow-up care. Please keep these records up-to-d
 			    <td>
 					<form:select path="patient.remindersCompleted[${status.index}].responseType"  onchange="onChange(${reminder.id})">
 						<c:forEach items="${patient.responseTypes}" var="responseType">
-							<option value="${responseType}" label="${responseType}" <c:if test="${responseType == reminder.responseType}">selected="selected"</c:if>/>
+							<option value="${responseType}" label="${responseType}" <c:if test="${responseType == reminder.responseType}">selected="selected"</c:if>>${responseType}</option>
 						</c:forEach>
 			    	</form:select>
 			    </td>
@@ -201,7 +201,7 @@ Below is a list of recommended follow-up care. Please keep these records up-to-d
 			    <td>
 					<select name="careTypeNew" id="careTypeNew">
 						<c:forEach items="${patient.careTypes}" var="careType">
-							<option value="${careType}" label="${careType}"/>
+							<option value="${careType}" label="${careType}">${careType}</option>
 						</c:forEach>
 					</select>
 		    	</td>			    
@@ -211,7 +211,7 @@ Below is a list of recommended follow-up care. Please keep these records up-to-d
 			    <td>
 					<select name="resultTypeNew" id="resultTypeNew">
 						<c:forEach items="${patient.responseTypes}" var="responseType">
-							<option value="${responseType}" label="${responseType}"/>
+							<option value="${responseType}" label="${responseType}">${responseType}</option>
 						</c:forEach>
 			    	</select>
 			    </td>

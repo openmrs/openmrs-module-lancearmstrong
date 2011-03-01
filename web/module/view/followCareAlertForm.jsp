@@ -219,7 +219,7 @@
 			    <td>
 					<select name="resultTypeNew" id="resultTypeNew">
 						<c:forEach items="${patient.responseTypes}" var="responseType">
-							<option value="${responseType}" label="${responseType}"/>
+							<option value="${responseType}" label="${responseType}">${responseType}</option>
 						</c:forEach>
 			    	</select>
 			    </td>
