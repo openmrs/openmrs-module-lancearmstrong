@@ -100,7 +100,7 @@ Below is a list of recommended follow-up care. Please keep these records up-to-d
 	
 			  <tr>
 				<td>
-			        ${reminder.targetDate.date}/${reminder.targetDate.month+1}/${reminder.targetDate.year+1900}
+					<openmrs:formatDate date="${reminder.targetDate}"/>
 			    </td>
 			    <td>
 			        ${reminder.followProcedure.name}
