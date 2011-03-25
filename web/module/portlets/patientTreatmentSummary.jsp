@@ -8,7 +8,9 @@
 <openmrs:globalProperty key="dashboard.encounters.showEditLink" var="showEditLink" defaultValue="true"/>
 
 <c:set var="foundSummary" value="false"/>
-
+<div class="tooltip">
+<spring:message code="lancearmstrong.tooltip.treatment.summary"/>
+</div>
 <div id="treatmentSummaryPortlet"">
 		<c:forEach items='${openmrs:sort(model.patientEncounters, "encounterDatetime", true)}' var="enc" varStatus="encStatus">
 			<c:if test="${enc.encounterType.name == 'CANCER TREATMENT SUMMARY' && foundSummary=='false'}">

@@ -1,5 +1,7 @@
 <%@ include file="/WEB-INF/template/include.jsp" %>
-
+<div class="tooltip">
+<spring:message code="lancearmstrong.tooltip.communities"/>
+</div>
 <div id="communities_div">
 <h3>More information</h3>
 <ul>

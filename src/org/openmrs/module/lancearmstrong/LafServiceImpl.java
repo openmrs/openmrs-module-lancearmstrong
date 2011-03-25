@@ -15,6 +15,7 @@ package org.openmrs.module.lancearmstrong;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -508,6 +509,9 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     	} else {
     		log.error("Guideline is not found for cancer type:" + type + " and cancer stage: "+ stage);
     	}
+
+    	//sort guidelines by target date
+        Collections.sort(reminders, LafReminder.getDateComparator());
     	
     	return reminders;
      }

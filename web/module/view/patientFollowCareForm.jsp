@@ -83,11 +83,11 @@ Customized follow-up care recommendation is not available. Please enter your can
 </div>  
 </c:when>
 <c:otherwise>
-<div class="tooltip">
-Below is a list of recommended follow-up care. Please keep these records up-to-date by updating corresponding fields when you respond to an alert that reminds you of individual care at appropriate time.  
-</div>
+
 <div id="guideline-div">
-	<div class="sub_title">Follow-up Care per Guideline</div>
+	<div class="sub_title">
+		<spring:message code="lancearmstrong.title.followup.potential"/>	
+    </div>
 	<table border="1">
 		  <thead>
 			  <tr>
@@ -112,7 +112,9 @@ Below is a list of recommended follow-up care. Please keep these records up-to-d
 	</table>
 </div>
 <div id="followup-div"  >
-<div class="sub_title">Follow-up Care Performed</div>
+<div class="sub_title">
+	<spring:message code="lancearmstrong.title.followup.received"/>	
+</div>
 <spring:hasBindErrors name="patient">
 	<spring:message code="fix.error"/>
 	<div class="error">

@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.lancearmstrong;
 
+import java.util.Comparator;
 import java.util.Date;
 
 import org.openmrs.Concept;
@@ -40,6 +41,22 @@ public class LafReminder {
 	private Date CompleteDate;
 	private String doctorName; 
 	
+    /**
+     * Sort by start_date
+     * 
+     * @return date comparator
+     */
+    public static Comparator<LafReminder> getDateComparator() {
+        return new Comparator<LafReminder>() {
+            
+        	//in ascending order
+            @Override 
+            public int compare(final LafReminder g1, final LafReminder g2) {
+                return (g2.getTargetDate()==null||g1.getTargetDate()==null) ? 1 : g1.getTargetDate().compareTo(g2.getTargetDate());
+            }
+        };
+    }
+    
     public Integer getId() {
     	return id;
     }
