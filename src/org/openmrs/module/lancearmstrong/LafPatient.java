@@ -16,6 +16,7 @@ package org.openmrs.module.lancearmstrong;
 import java.util.List;
 
 import org.openmrs.Patient;
+import org.openmrs.notification.Alert;
 
 
 /**
@@ -25,6 +26,7 @@ public class LafPatient {
 	private Patient patient;
 	private List<LafReminder> reminders; //follow-up care per guideline
 	private List<LafReminder> remindersCompleted; //follow-up care actually performed
+	private List<Alert> alerts;
 	private String[] responseTypes = {"Normal", "Abnormal", "Don't know"};
 	private String[] careTypes = {
 			"Colonoscopy", "History and Physical",
@@ -37,7 +39,12 @@ public class LafPatient {
 		this.remindersCompleted = remCompl;
 		
 	}
-			
+
+	public LafPatient(Patient pat, List<Alert> alerts) {
+		this.patient = pat;
+		this.alerts = alerts;
+	}
+	
     public List<LafReminder> getReminders() {
     	return reminders;
     }
@@ -84,5 +91,15 @@ public class LafPatient {
 	
     public void setCareTypes(String[] careTypes) {
     	this.careTypes = careTypes;
+    }
+
+	
+    public List<Alert> getAlerts() {
+    	return alerts;
+    }
+
+	
+    public void setAlerts(List<Alert> alerts) {
+    	this.alerts = alerts;
     }
  }

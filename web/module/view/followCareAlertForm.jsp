@@ -279,6 +279,7 @@
 
 
 <div id="alertContent">
+<!-- 
 		<laf:forEachAlert>
 			<c:if test="${varStatus.first}"><div id="alertOuterBox"><div id="alertInnerBox"></c:if>
 				<div class="alert">
@@ -294,13 +295,40 @@
 					Your <span id="alertText">${alert.text}</span> <c:if test="${alert.satisfiedByAny}"><i class="smallMessage">(<spring:message code="lancearmstrong.Alert.mark.satisfiedByAny"/>)</i></c:if>
 				</div>
 			<c:if test="${varStatus.last}">
+				</div>
 				<div id="alertBar">
 					<img src="${pageContext.request.contextPath}/images/alert.gif" align="center" alt='<spring:message code="lancearmstrong.Alert.unreadAlert"/>' title='<spring:message code="lancearmstrong.Alert.unreadAlert"/>'/>
 					<c:if test="${varStatus.count == 1}"><spring:message code="lancearmstrong.Alert.unreadAlert"/></c:if>
 					<c:if test="${varStatus.count != 1}"><spring:message code="lancearmstrong.Alert.unreadAlerts" arguments="${varStatus.count}" /></c:if>
 				</div>
+				</div>
 			</c:if>
 		</laf:forEachAlert>
+-->		
+		  <c:forEach var="alert" items="${patient.alerts}" varStatus="status">	
+			   <c:if test="${status.first}"><div id="alertOuterBox"><div id="alertInnerBox"></c:if>
+					<div class="alert">
+						<a href="#markCompleted" onClick="return markAlert(this, '${alert.id}', '${alert.dateToExpire}', '${patient.patient.patientId}','markAsCompletedPopup')" HIDEFOCUS class="markAlertRead">
+							 <span class="markAlertText"><spring:message code="lancearmstrong.Alert.markAsCompleted"/></span>
+						</a>
+						<a href="#markScheduled" onClick="return markAlert(this, '${alert.id}', '${alert.dateToExpire.date}/${alert.dateToExpire.month+1}/${alert.dateToExpire.year+1900}', '${patient.patient.patientId}','markAsScheduledPopup')" HIDEFOCUS class="markAlertRead">
+							 <span class="markAlertText"><spring:message code="lancearmstrong.Alert.markAsScheduled"/></span>
+						</a>
+						<a href="#markSnooze" onClick="return markAlert(this, '${alert.id}', '${alert.dateToExpire.date}/${alert.dateToExpire.month+1}/${alert.dateToExpire.year+1900}', '${patient.patient.patientId}','markAsSnoozePopup')" HIDEFOCUS class="markAlertRead">
+							 <span class="markAlertText"><spring:message code="lancearmstrong.Alert.markAsSnooze"/></span>
+						</a>
+						Your <span id="alertText">${alert.text}</span> <c:if test="${alert.satisfiedByAny}"><i class="smallMessage">(<spring:message code="lancearmstrong.Alert.mark.satisfiedByAny"/>)</i></c:if>
+					</div>
+	  		  	<c:if test="${status.last}">
+					</div>
+					<div id="alertBar">
+						<img src="${pageContext.request.contextPath}/images/alert.gif" align="center" alt='<spring:message code="lancearmstrong.Alert.unreadAlert"/>' title='<spring:message code="lancearmstrong.Alert.unreadAlert"/>'/>
+						<c:if test="${status.count == 1}"><spring:message code="lancearmstrong.Alert.unreadAlert"/></c:if>
+						<c:if test="${status.count != 1}"><spring:message code="lancearmstrong.Alert.unreadAlerts" arguments="${status.count}" /></c:if>
+					</div>
+					</div>
+			  	</c:if>		
+	 	  </c:forEach>  
 </div>			
 <script type="text/javascript">
 		$j('#markAsCompletedPopup').dialog({

@@ -2,22 +2,29 @@ package org.openmrs.module.lancearmstrong.web.controller;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.ListIterator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.jsp.JspTagException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
 import org.openmrs.User;
 import org.openmrs.api.context.Context;
+import org.openmrs.logic.LogicService;
+import org.openmrs.logic.result.Result;
+import org.openmrs.logic.result.Result.Datatype;
 import org.openmrs.module.lancearmstrong.LafPatient;
 import org.openmrs.module.lancearmstrong.LafReminder;
 import org.openmrs.module.lancearmstrong.LafUtil;
 import org.openmrs.module.personalhr.PersonalhrUtil;
+import org.openmrs.notification.Alert;
 import org.openmrs.web.WebConstants;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
@@ -72,9 +79,55 @@ public class FollowCareAlertFormController extends SimpleFormController {
 	        }
         }
         
-        return new LafPatient(pat, null, null);         
+        return new LafPatient(pat, getAlerts());         
     }
 
+	private List<Alert> getAlerts() {				
+		List<Alert> alertList = new ArrayList<Alert>();
+		try {			
+			User user = Context.getAuthenticatedUser();
+			
+			log.debug("Logged in as user: " + (user == null ? null : user.getUsername()));
+			
+			if(user!=null) {
+    			Patient pat = Context.getPatientService().getPatient(user.getPerson().getId());
+    			if(pat == null) {
+    				log.debug("Current user is not a patient!");
+    			}
+    				
+    			log.debug("Parsing logic rule...");
+    			LogicService ls = Context.getLogicService();
+    			Result result = ls.eval(pat, ls.parse("\"Follow-up Care Alert\""));
+    			
+    			if(result != null) {
+        			ListIterator<Result> iter = result.listIterator();
+        			int alertId = 0;
+        			while(iter.hasNext()) {
+        			    Result res = iter.next();
+        			    Alert alert = new Alert();
+        			    Datatype dataType = res.getDatatype();
+        			    if(Datatype.CODED==dataType) {
+        			    	alertId = res.toConcept().getId();
+                            log.debug("Alert found (" + alertId + "): " + res.toConcept().getRetireReason());
+                            alert.setAlertId(alertId);
+                            alert.setDateToExpire(res.toConcept().getDateRetired());
+        			        alert.setText(res.toConcept().getRetireReason());        			        
+        			        alertList.add(alert);
+        			    } else {
+        			        log.debug("Non coded datatype: " + dataType);
+        			    }
+        			}
+        			
+    			}
+			}
+		}
+		catch (Exception e) {
+			log.error(e);
+		}
+		
+		return alertList;
+	}
+    
     @Override
     protected void onBindAndValidate(HttpServletRequest request,
             Object commandObject, BindException errors) throws Exception {
