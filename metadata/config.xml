@@ -34,10 +34,6 @@
 	
 	<!-- Extensions -->
 	<extension>
-		<point>org.openmrs.admin.list</point>
-		<class>@MODULE_PACKAGE@.extension.html.AdminList</class>
-	</extension>
-	<extension>
 		<point>org.openmrs.module.personalhr.patientDashboardTab</point>
 		<class>@MODULE_PACKAGE@.extension.html.PatientTreatmentSummary</class>
 	</extension>

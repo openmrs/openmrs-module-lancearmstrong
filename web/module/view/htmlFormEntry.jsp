@@ -1,4 +1,5 @@
-<%@ include file="/WEB-INF/template/include.jsp" %>
+<%@ include file="/WEB-INF/view/module/personalhr/template/include.jsp" %>
+<personalhr:require privilege="PHR Authenticated" otherwise="/phr/login.htm" redirect="/module/lancearmstrong/view/htmlFormEntry.htm" />
 
 <c:set var="OPENMRS_DO_NOT_SHOW_PATIENT_SET" scope="request" value="true"/>
 <c:set var="pageFragment" value="${param.pageFragment != null && param.pageFragment}"/>
@@ -19,7 +20,6 @@
 		$j = jQuery.noConflict();
 	</script>
 	<openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
-	<openmrs:htmlInclude file="/dwr/engine.js" />
 	<openmrs:htmlInclude file="/dwr/util.js" />
 	<openmrs:htmlInclude file="/dwr/interface/DWRHtmlFormEntryService.js" />
 	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.js" />

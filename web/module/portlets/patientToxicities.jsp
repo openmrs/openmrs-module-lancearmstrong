@@ -1,4 +1,6 @@
-<%@ include file="/WEB-INF/template/include.jsp" %>
+<%@ include file="/WEB-INF/view/module/personalhr/template/include.jsp" %>
+<personalhr:require privilege="PHR Authenticated" otherwise="/phr/login.htm" redirect="/module/lancearmstrong/portlets/patientToxicities.htm" />
+
 <div class="tooltip">
 <spring:message code="lancearmstrong.tooltip.side.effects"/>
 </div>

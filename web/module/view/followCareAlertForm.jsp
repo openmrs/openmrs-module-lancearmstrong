@@ -1,4 +1,7 @@
-<%@ include file="/WEB-INF/template/include.jsp" %>
+<%@ include file="/WEB-INF/view/module/personalhr/template/include.jsp" %>
+
+<personalhr:require privilege="PHR Authenticated" otherwise="/phr/login.htm" redirect="/module/lancearmstrong/view/followCareAlertForm.jsp" />
+
 <%@ taglib prefix="laf" uri="/WEB-INF/view/module/lancearmstrong/taglibs/lancearmstrong.tld" %>
 
 <openmrs:htmlInclude file="/moduleResources/lancearmstrong/jquery-1.4.4.min.js" />
@@ -309,13 +312,13 @@
 			   <c:if test="${status.first}"><div id="alertOuterBox"><div id="alertInnerBox"></c:if>
 					<div class="alert">
 						<a href="#markCompleted" onClick="return markAlert(this, '${alert.id}', '${alert.dateToExpire}', '${patient.patient.patientId}','markAsCompletedPopup')" HIDEFOCUS class="markAlertRead">
-							 <span class="markAlertText"><spring:message code="lancearmstrong.Alert.markAsCompleted"/></span>
+							 <span class="markAlertText" style="text-decoration: underline;"><spring:message code="lancearmstrong.Alert.markAsCompleted"/></span>
 						</a>
 						<a href="#markScheduled" onClick="return markAlert(this, '${alert.id}', '${alert.dateToExpire.date}/${alert.dateToExpire.month+1}/${alert.dateToExpire.year+1900}', '${patient.patient.patientId}','markAsScheduledPopup')" HIDEFOCUS class="markAlertRead">
-							 <span class="markAlertText"><spring:message code="lancearmstrong.Alert.markAsScheduled"/></span>
+							 <span class="markAlertText"  style="text-decoration: underline;"><spring:message code="lancearmstrong.Alert.markAsScheduled"/></span>
 						</a>
 						<a href="#markSnooze" onClick="return markAlert(this, '${alert.id}', '${alert.dateToExpire.date}/${alert.dateToExpire.month+1}/${alert.dateToExpire.year+1900}', '${patient.patient.patientId}','markAsSnoozePopup')" HIDEFOCUS class="markAlertRead">
-							 <span class="markAlertText"><spring:message code="lancearmstrong.Alert.markAsSnooze"/></span>
+							 <span class="markAlertText"  style="text-decoration: underline;"><spring:message code="lancearmstrong.Alert.markAsSnooze"/></span>
 						</a>
 						Your <span id="alertText">${alert.text}</span> <c:if test="${alert.satisfiedByAny}"><i class="smallMessage">(<spring:message code="lancearmstrong.Alert.mark.satisfiedByAny"/>)</i></c:if>
 					</div>

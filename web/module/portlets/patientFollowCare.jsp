@@ -1,4 +1,6 @@
-<%@ include file="/WEB-INF/template/include.jsp" %>
+<%@ include file="/WEB-INF/view/module/personalhr/template/include.jsp" %>
+<personalhr:require privilege="PHR Authenticated" otherwise="/phr/login.htm" redirect="/module/lancearmstrong/portlets/patientFollowCare.htm" />
+
 <div id="followup-div"  >
 		<div class="tooltip">
 		<spring:message code="lancearmstrong.tooltip.followup.care"/>
