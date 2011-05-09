@@ -17,7 +17,7 @@
 		<c:forEach items='${openmrs:sort(model.patientEncounters, "encounterDatetime", true)}' var="enc" varStatus="encStatus">
 			<c:if test="${enc.encounterType.name == 'CANCER TREATMENT SUMMARY' && foundSummary=='false'}">
 				<c:set var="foundSummary" value="true"/>			
-				<iframe src ="${pageContext.request.contextPath}/module/lancearmstrong/htmlFormEntryForm.form?encounterId=${enc.encounterId}&mode=EDIT&inTab=true" width="100%" height="1000">
+				<iframe id="treatmentSummaryFrame" src ="${pageContext.request.contextPath}/module/lancearmstrong/htmlFormEntryForm.form?encounterId=${enc.encounterId}&mode=EDIT&inTab=true" width="100%" height="1500">
 				  Loading Cancer Treatment Summary ...
 				</iframe>
 				<%--
