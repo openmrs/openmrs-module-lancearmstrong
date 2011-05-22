@@ -66,7 +66,7 @@ public class PatientTreatmentSummary extends PatientDashboardTabExt {
     @Override
     public String getTabName() {
 	    // TODO Auto-generated method stub
-	    return "Treatment Summary";
+	    return "My History";
     }
 	
 }

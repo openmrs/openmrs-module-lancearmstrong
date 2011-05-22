@@ -79,9 +79,9 @@
 
 <c:choose>
 <c:when test="${patient.reminders==null}">
-<div class="tooltip">
-Customized follow-up care recommendation is not available. Please enter your cancer summary and surgery information in the Treatment Summary panel in order to see the recommendation.
-</div>  
+<em>
+Customized plan of care recommendation is not available. Please enter your cancer summary and surgery information in My History panel in order to see the recommendation.
+</em>  
 </c:when>
 <c:otherwise>
 

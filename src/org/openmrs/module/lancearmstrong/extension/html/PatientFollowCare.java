@@ -66,7 +66,7 @@ public class PatientFollowCare extends PatientDashboardTabExt {
     @Override
     public String getTabName() {
 	    // TODO Auto-generated method stub
-	    return "Follow-up Care";
+	    return "My Plan of Care";
     }
 	
 }
