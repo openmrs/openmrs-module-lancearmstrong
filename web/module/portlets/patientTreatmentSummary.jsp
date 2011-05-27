@@ -10,7 +10,7 @@
 <openmrs:globalProperty key="dashboard.encounters.showEditLink" var="showEditLink" defaultValue="true"/>
 
 <c:set var="foundSummary" value="false"/>
-<div class="tooltip">
+<div class="tooltipPhr">
 <spring:message code="lancearmstrong.tooltip.treatment.summary"/>
 </div>
 <div id="treatmentSummaryPortlet"">
@@ -28,6 +28,6 @@
 </div>
 
 <c:if test="${foundSummary=='false'}">
-	<personalhr:portlet url="../module/personalhr/portlets/personFormEntry.portlet" id="formEntryPortlet" personId="${patient.personId}" parameters="showDecoration=true|showLastThreeEncounters=true|returnUrl=${pageContext.request.contextPath}/phr/patientDashboard.form"/>
+	<a href="../module/lancearmstrong/htmlFormEntryForm.form?formId=6&personId=${model.personId}&patientId=${model.patientId}"> Create Treatment Summary</a>
 </c:if>			
 

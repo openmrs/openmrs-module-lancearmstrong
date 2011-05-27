@@ -9,10 +9,10 @@
 <c:if test="${not pageFragment}">
 	<c:choose>
 		<c:when test="${inPopup || inTab}">
-			<%@ include file="/WEB-INF/template/headerMinimal.jsp" %>
+			<%@ include file="/WEB-INF/view/module/personalhr/template/headerMinimal.jsp" %>
 		</c:when>
 		<c:otherwise>
-			<%@ include file="/WEB-INF/template/header.jsp" %>
+			<%@ include file="/WEB-INF/view/module/personalhr/template/header.jsp" %>
 		</c:otherwise>
 	</c:choose>
 
@@ -261,10 +261,10 @@
 <c:if test="${!pageFragment}">
 	<c:choose>
 		<c:when test="${inPopup || inTab}">
-			<%@ include file="/WEB-INF/template/footerMinimal.jsp" %>
+			<%@ include file="/WEB-INF/view/module/personalhr/template/footerMinimal.jsp" %>
 		</c:when>
 		<c:otherwise>
-			<%@ include file="/WEB-INF/template/footer.jsp" %>
+			<%@ include file="/WEB-INF/view/module/personalhr/template/footer.jsp" %>
 		</c:otherwise>
 	</c:choose>
 </c:if>
