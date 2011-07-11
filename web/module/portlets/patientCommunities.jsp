@@ -5,24 +5,90 @@
 <spring:message code="lancearmstrong.tooltip.communities"/>
 </div>
 <div id="communities_div">
-<h3>More information</h3>
-<ul>
-<li><a href="http://csn.cancer.org" onclick="popblank('');" target="blank">Cancer Survivors Network</a> </li>
-<li><a href="http://www.cancer.org" onclick="popblank('');" target="blank">American Cancer Society</a></li>
-<li><a href="http://oncolink.org" onclick="popblank('');" target="blank">OncoLink.org</a> </li>
-<li><a href="http://www.nationalchildrenscancersociety.org" onclick="popblank('');" target="blank">National Children's Cancer Society</a> </li>
-<li><a href="http://www.caringbridge.org" onclick="popblank('');" target="blank">CaringBridge</a> </li>
-<li><a href="http://www.beyondthecure.org" onclick="popblank('');" target="blank">Beyond the Cure</a></li>
-<li><a href="http://www.cancer.net/patient/Survivorship" onclick="popblank('');" target="blank">Survivorship</a> (Cancer.Net)</li>
-<li><a href="http://www.acscsn.org" onclick="popblank('');" target="blank">Cancer Survivors Network</a><br />(American Cancer Society)</li>
-<li><a href="http://www.cancer.gov/cancertopics/life-after-treatment" onclick="popblank('');" target="blank">Life After Cancer Treatment</a><br />(National Cancer Institute)</li>
-<li><a href="http://www.cancer.gov/cancertopics/make-a-difference" onclick="popblank('');" target="blank">Ways You Can Make A Difference in Cancer</a> (National Cancer Institute)</li>
-<li><a href="http://www.cancer.gov/cancertopics/factsheet/Therapy/followup" onclick="popblank('');" target="blank">Follow-up Care: Questions and Answers</a> (National Cancer Institute)</li>
-<li><a href="http://www.nlm.nih.gov/medlineplus/cancerlivingwithcancer.html" onclick="popblank('');" target="blank">Living with Cancer</a> (MedlinePlus)</li>
-<li><a href="http://www.canceradvocacy.org/toolbox/11-living-beyond-cancer/" onclick="popblank('');" target="blank">Living Beyond Cancer</a> (The National Coalition for Cancer Survivorship) </li>
-<li><a href="http://www.cancer.org/docroot/HOME/srv/srv_0.asp?level=0" onclick="popblank('');" target="blank">Survivors</a> (American Cancer Society)</li>
-<li><a href="http://www.livestrong.org/site/c.jvKZLbMRIsG/b.1568049/k.85DF/Hear_Stories.htm" onclick="popblank('');" target="blank">Survivorship Stories</a><br />(The Lance Armstrong Foundation)</li>
-<li><a href="http://www.canceradvocacy.org/toolbox/" onclick="popblank('');" target="blank">Cancer Survival Toolbox&#174;</a><br />(National Coalition for Cancer Survivorship)</li>
-</ul>
+<br/>
+<h3><u>Useful Contacts</u></h3>
+<br/>
  
+<table border="1" cellpadding="0" cellspacing="2" dir="ltr" width="590">
+	<tbody>
+		<tr>
+			<td width="28%">				
+					<b>ORGANIZATION</b>
+			</td>
+			<td width="27%">
+					<b>TELEPHONE</b>
+			</td>
+			<td width="45%">
+					<b>WEB SITE</b>
+			</td>
+		</tr>
+		<tr>
+			<td width="28%">
+					C3 Colorectal Cancer Coalition
+				<br/>
+					1225 King St
+				<br/>
+					Alexandria, VA 22314
+			</td>
+			<td width="27%">
+					703-548-1225
+			</td>
+			<td width="45%">
+					<a href="http://www.fightcolorectalcancer.org/"><u>www.fightcolorectalcancer.org</u></a>
+			</td>
+		</tr>
+		<tr>
+			<td width="28%">
+					Frankly Speaking about Colorectal Cancer, 2nd ed, 2008
+			</td>
+			<td width="27%">
+					703-548-1225, Ext 10
+			</td>
+			<td width="45%">
+					<u>advocacy.fightcrc.org/FranklySpeaking</u>
+			</td>
+		</tr>
+		<tr>
+			<td width="28%">
+					Yearly calendar of colon cancer survivors
+			</td>
+			<td width="27%">
+				</td>
+			<td width="45%">
+					<a href="http://www.colondar.com/"><u>www.colondar.com</u></a>
+			</td>
+		</tr>
+	</tbody>
+</table>
+</br>
+<h3><u>Cancer Survivor Resources for Patients and their Caregivers</u></h3></li>
+<ol>
+<li>
+Support Groups &ndash; check at your treating hospital, in your community and online (American Cancer Society&rsquo;s Cancer survivors Network (<a href="http://csn.cancer.org"><u>http://csn.cancer.org</u></a>), and the University of Pennsylvania&rsquo;s Oncolink (<a href="http://oncolink.org"><u>http://oncolink.org</u></a>). Both of these sites are reliable &amp; reputable.</li>
+<li>
+American Cancer Society <a href="http://www.cancer.org/docroot/home/index.asp%201-800-ACS2345"><u>http://www.cancer.org/docroot/home/index.asp 1-800-ACS2345</u></a></li>
+<li>
+CancerCare <a href=http://www.cancercare.org><u>http://www.cancercare.org</u></a> 1-800-813-HOPE (4673)</li>
+<li>
+	National Coalition for Cancer Survivorship &ndash; see also the Cancer Survivor Toolbox <a href="http://www.canceradvocacy.org/"><u>www.canceradvocacy.org/</u></a></li>
+<li>
+Lance Armstrong Foundation LiveStrong <a href="http://www.livestrong.org/"><u>http://www.livestrong.org</u></a></li>
+<li>
+NCI &ndash; Office of Cancer Survivorship <a href="http://dccps.nci.nih.gov/ocs/"><u>http://dccps.nci.nih.gov/ocs/</u></a></li>
+<li>
+NPR &ndash; &quot;My Cancer&quot; blog <a href="http://www.npr.org/blogs/mycancer/"><u>http://www.npr.org/blogs/mycancer/</u></a></li>
+<li>
+The Wellness Community, <a href="http://www.thewellnesscommunity.org/"><u>www.thewellnesscommunity.org</u></a>, 888-793-WELL</li>
+<li>
+For Patients who work:<a href="http://www.cancerandcareers.org/"><u>www.cancerandcareers.org</u></a></li>
+<li>
+Internet blog for patients to stay connected: <a href="http://www.caringbridge.org/"><u>www.caringbridge.org</u></a></li>
+<li>
+FertileHope: <a href="http://www.fertilehope.org//oFertileHope"><u>http://www.fertilehope.org</u></a> </li>
+<li>
+Facing Forward: Life After Cancer Treatment, NCI, NIH Publication No. 06-2424</li>
+<li>
+CURE magazine <a href="http://www.curetoday.com/subscribe"><u>www.curetoday.com/subscribe</u></a>, 800-210-CURE</li>
+</ol>
+
 </div>

@@ -2,9 +2,6 @@
 <personalhr:require privilege="PHR Authenticated" otherwise="/phr/login.htm" redirect="/module/lancearmstrong/view/patientFollowCareForm.htm" />
 
 <%@ include file="/WEB-INF/template/headerMinimal.jsp" %>
-	<script type="text/javascript">
-		$j = jQuery.noConflict();
-	</script>
 	<openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
 	<openmrs:htmlInclude file="/dwr/util.js" />
 	<openmrs:htmlInclude file="/dwr/interface/DWRLafService.js" />
@@ -13,6 +10,9 @@
 	<openmrs:htmlInclude file="/moduleResources/lancearmstrong/jquery-ui-1.8.9.custom.css" />
 	<openmrs:htmlInclude file="/moduleResources/lancearmstrong/jquery-ui-1.8.9.custom.min.js" />
 	<openmrs:htmlInclude file="/moduleResources/lancearmstrong/autoresize.jquery.js" />
+	<script type="text/javascript">
+		$j = jQuery.noConflict();
+	</script>
 <script type="text/javascript">
 	$j(document).ready(function(){
 		//$j('input[type="button"]').attr('disabled','disabled'); 				
@@ -20,20 +20,21 @@
 
 
 	function onAddCare(){
-		if ($("#addCareDetailDiv").is(":hidden")) {
-			$("#addCareDetailDiv").slideDown("fast", function(){
-				$("#addCare").toggle();
-				$("#cancelAddCare").toggle();
-				$("#saveAddCare").toggle();
+		if ($j('#addCareDetailDiv').is(":hidden")) {
+			$j('#addCareDetailDiv').slideDown("fast", function(){
+				$j('#addCare').toggle();
+				$j('#cancelAddCare').toggle();
+				$j('#saveAddCare').toggle();
 			});
 		}else{
-			$("#addCareDetailDiv").slideUp("fast", function(){
-				$("#addCare").toggle();
-				$("#cancelAddCare").toggle();
-				$("#saveAddCare").toggle();
+			$j('#addCareDetailDiv').slideUp("fast", function(){
+				$j('#addCare').toggle();
+				$j('#cancelAddCare').toggle();
+				$j('#saveAddCare').toggle();
 			});
 		}
 	}
+
 
 	function saveAddedCare(patientId){
 		var completeDate = parseSimpleDate($j('#completeDateNew').val(), '<openmrs:datePattern />');
@@ -133,7 +134,7 @@ Customized plan of care recommendation is not available. Please enter your cance
 		  <thead>
 			  <tr>
 			    <th>Date Completed</th>
-			    <th>Recommended Care</th>
+			    <th>Care Received</th>
 			    <th>Doctor Name</th>
 			    <th>Results</th>
 			    <th>Comments</th>
@@ -146,7 +147,7 @@ Customized plan of care recommendation is not available. Please enter your cance
 			  <tr>
 				<td>
 					<spring:bind path="patient.remindersCompleted[${status.index}].completeDate">
-						    <input type="text" name="${status.expression}" value="${status.value}" id="completeDate${reminder.id}" onClick="showCalendar(this)" onChange="onChange(${reminder.id})"/>
+						    <input type="text" name="${status.expression}" value="${status.value}" id="completeDate${reminder.id}" onClick="showCalendar(this, 100)" onChange="onChange(${reminder.id})"/>
 					</spring:bind>
 			    </td>
 			    <td>
@@ -170,7 +171,7 @@ Customized plan of care recommendation is not available. Please enter your cance
 			    </td>
 			    <td>
 			<spring:bind path="patient.remindersCompleted[${status.index}].responseComments">
-				<textarea name="${status.expression}" id="comments${reminder.id}" onChange="onChange(${reminder.id})" rows="1">${status.value}</textarea>
+				<input type="text" name="${status.expression}" id="comments${reminder.id}" onChange="onChange(${reminder.id})" value="${status.value}"/>
 			</spring:bind>
 			    </td>
 			    <td align="center">
@@ -199,7 +200,7 @@ Customized plan of care recommendation is not available. Please enter your cance
 		<tbody>
 		  	<tr>
 				<td>
-					 <input type="text" name="completeDateNew" id="completeDateNew" onClick="showCalendar(this)" />
+					 <input type="text" name="completeDateNew" id="completeDateNew" onClick="showCalendar(this, 100)" />
 			    </td>
 			    <td>
 					<select name="careTypeNew" id="careTypeNew">
@@ -219,7 +220,7 @@ Customized plan of care recommendation is not available. Please enter your cance
 			    	</select>
 			    </td>
 			    <td>
-				    <textarea name="commentsNew" id="commentsNew" rows="1">${status.value}</textarea>
+				    <input type="text" name="commentsNew" id="commentsNew" value="${status.value}"/>
 			    </td>
 			</tr>
 		  </tbody> 
