@@ -84,21 +84,7 @@
 			            	  	ret = saveSnooze(patientId, alertId, targetDate);
 			            	  }
 			            	  
-			            	  if(ret == 0) {
-					          	  var parent = self.parentNode;
-					        	  parent.style.display = "none";
-					        	  var unreadAlertSizeBox = document.getElementById('unreadAlertSize');
-					        	  var unreadAlertSize = parseInt(unreadAlertSizeBox.innerHTML);
-					        	  if (unreadAlertSize == 1) {
-					        			// hide the entire alert outer div because they read the last alert
-					        			parent = parent.parentNode.parentNode;
-					        			parent.style.display = "none";
-					        	  }
-					        	  else {
-					        			unreadAlertSize = unreadAlertSize - 1;
-					        			unreadAlertSizeBox.innerHTML = unreadAlertSize;
-					        	  }
-			            	  
+			            	  if(ret == 0) {			            	  
 			            	  	  $j('#'+popupId).dialog("close");
 			            	  } 
 			              }
@@ -146,8 +132,8 @@
 		var splits = targetDate.split("/");
 		
 		var ys = splits[2]; // Convert year, month and date to strings 
-		var ms = splits[1];   
-		var ds = splits[0];   
+		var ms = splits[0];   
+		var ds = splits[1];   
 		if ( ms.length == 1 ) ms = "0" + ms; // Add leading zeros to month and date if required 
 		if ( ds.length == 1 ) ds = "0" + ds; 
 		
@@ -160,7 +146,13 @@
 			$j('#scheduleDate').focus();
 			return -1;
 		}
-		DWRLafService.followupCareScheduled(patientId, scheduleDate, careType, targetDate2);
+		DWRLafService.followupCareScheduled(patientId, scheduleDate, careType, targetDate2,
+				{
+			  		callback:function(str) { 
+			    		location.reload(true);
+		  		    }
+		        }
+		);
 		return 0;
 	}
 	
@@ -170,8 +162,8 @@
 		
 		var splits = targetDate.split("/");
 		var ys = splits[2]; // Convert year, month and date to strings 
-		var ms = splits[1];   
-		var ds = splits[0];   
+		var ms = splits[0];   
+		var ds = splits[1];   
 		if ( ms.length == 1 ) ms = "0" + ms; // Add leading zeros to month and date if required 
 		if ( ds.length == 1 ) ds = "0" + ds; 
 		
@@ -190,7 +182,13 @@
 			return -1;
 		} 
 		
-		DWRLafService.followupCareSnooze(patientId, snoozeDays, careType, targetDate2);				
+		DWRLafService.followupCareSnooze(patientId, snoozeDays, careType, targetDate2,
+			{
+		  		callback:function(str) { 
+		    		location.reload(true);
+	  		    }
+		    }
+		);				
 		return 0;
 	}	
 </script>
@@ -215,16 +213,6 @@
 			    <th>Doctor Name</th>
 			    <td>
 				    <input type="text" name="docNameNew" id="docNameNew"/>
-			    </td>
-			 </tr>
-			 <tr>
-			    <th>Results</th>
-			    <td>
-					<select name="resultTypeNew" id="resultTypeNew">
-						<c:forEach items="${patient.responseTypes}" var="responseType">
-							<option value="${responseType}" label="${responseType}">${responseType}</option>
-						</c:forEach>
-			    	</select>
 			    </td>
 			 </tr>
 			 <tr>
@@ -311,9 +299,10 @@
 		  <spring:message code="lancearmstrong.Alert.mark.completed" var="hoverCompleted"/>
 		  <spring:message code="lancearmstrong.Alert.mark.scheduled" var="hoverScheduled"/>
 		  <spring:message code="lancearmstrong.Alert.mark.snooze" var="hoverSnooze"/>
+		  <div class="alert" style="background-color: lightpink; margin-top:8px"></div>
 		  <c:forEach var="alert" items="${patient.alerts}" varStatus="status">	
 			   <c:if test="${status.first}"><div id="alertOuterBox"><div id="alertInnerBox"></c:if>
-					<div class="alert" style="background-color: lightpink;">
+					<div class="alert" style="background-color: lightpink; margin-top:auto">
 						Your <span id="alertText">${alert.text}</span>
 						<a style="float: none;" title="${hoverCompleted}" href="#markCompleted" onClick="return markAlert(this, '${alert.id}', '${alert.dateToExpire}', '${patient.patient.patientId}','markAsCompletedPopup')" HIDEFOCUS class="markAlertRead">
 							 <span class="markAlertText" style="text-decoration: underline; float: none;font-weight:bold;"><spring:message code="lancearmstrong.Alert.markAsCompleted"/></span>

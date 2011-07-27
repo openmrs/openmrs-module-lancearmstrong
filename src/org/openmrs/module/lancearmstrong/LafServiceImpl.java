@@ -32,7 +32,19 @@ import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.lancearmstrong.db.*;
 
 /**
- *
+ * Follow-up care alerting rule:
+ * 
+ * 1. Generate an alert for each recommended follow-up care type 30-day before corresponding next target date if and only if no schedule or snooze found for this target date and follow-up care type
+ * 2. Next target date for each recommended follow-up care type is calculated as:
+ *    1) Get the date of latest received care
+ *    2) Match above date to one of the recommended dates
+ *    3) Find next target date based on today's date, matched date above and recommended dates:
+ *       (1) find two consecutive recommended dates between which today's date is
+ *       (2) find the mid-date of the two consecutive recommended dates above
+ *       (3) set the lower recommended date as the next target date if and only if today is before the mid-date above and the lower recommended date has not been matched by a received care  
+ *       (4) set the upper recommended date as the next target date if and only if today is after the mid-date above and the upper recommended date has not been matched by a received care
+ * 3. Mark recommended dates as yellow (missed date), green (matched date), red (alert date), and blue (scheduled or snoozed date) and display detail as hover texts
+ * 4. Assume date format in ENG-US locale       
  */
 public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     protected final Log log = LogFactory.getLog(getClass());
@@ -269,7 +281,10 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 		return latestEncounter;
 		
 	}
-	    
+	 
+	/*
+	 * find specific reminders for alerting purpose for a given patient at a given date based on 30-day alerting rule
+	 */
     private List<LafReminder> findReminders(Patient pat, Date indexDate) {
     	//find surgery date
     	Date surgDate = findLatestSurgeryDate(pat);
@@ -300,8 +315,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 	    			log.debug("Alert is found for patient: " + pat + ", guideline=" + guideline + ", targetDate=" + targetDate + ", alertStartDate=" + alertDate);
 	    			
 	    			//find snooze date or schedule date for this reminder
-	    			StringBuffer sb = new StringBuffer();
-	    			Date ssDate = findSnoozeOrScheduleDate(pat, guideline.getFollowProcedure(), targetDate, sb);
+	    			Date ssDate = findSnoozeOrScheduleDate(pat, guideline.getFollowProcedure(), targetDate);
 	    			
 	    			if(ssDate == null || ssDate.before(alertDate)) {
 			    		LafReminder reminder = new LafReminder();
@@ -329,7 +343,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 	 * @param sb 
      * @return
      */
-    private Date findSnoozeOrScheduleDate(Patient patient, Concept careType, Date targetDate, StringBuffer sb) {
+    private Date findSnoozeOrScheduleDate(Patient patient, Concept careType, Date targetDate) {
 	    LafReminder reminder = this.reminderDao.getLafReminder(patient, careType, targetDate);
 	    
 	    Date ssDate = null;
@@ -350,10 +364,34 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 	    		}
 	    	}
 	    }
-	    sb.append(ssType);
 	    
 	    return ssDate;
     }
+    
+    private Date findSnoozeOrScheduleDate(Patient patient, Concept careType, Date targetDate, String type) {
+	    LafReminder reminder = this.reminderDao.getLafReminder(patient, careType, targetDate);
+	    
+	    Date ssDate = null;
+	    String ssType = null;
+	    if(reminder != null) {
+	    	String[] splits = reminder.getResponseAttributes().split("=");
+	    	if(splits.length >=2) {
+	    		ssType = splits[0];
+	    		if(type.equals(ssType)) {
+	    			try {
+	    				ssDate = Context.getDateFormat().parse(splits[1]);
+	    			} catch (ParseException e) {
+		    			log.error("Bad date format: ssType=" + ssType + ", ssDate=" + ssDate);	    				
+	    			}
+	    			log.debug("This reminder is snoozed or scheduled: ssType=" + ssType + ", ssDate=" + ssDate);
+	    		} else {
+	    			log.warn("Unknown attribute type is found: " + reminder.getResponseAttributes());
+	    		}
+	    	}
+	    }
+	    
+	    return ssDate;
+    }    
 
 
 	/**
@@ -442,7 +480,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     }
 
 	/**
-     * Auto generated method comment
+     * Find all reminders/"recommended follow-up care dates" for a given patient based solely on guideline
      * 
      * @param pat
      */
@@ -513,11 +551,94 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     	//sort guidelines by target date
         Collections.sort(reminders, LafReminder.getDateComparator());
     	
+        //***********************************************
+        //mark each reminder as either completed, missed, scheduled, snoozed, near-future or far-future
+        //based on follow-up care received, today's date, schedule response, and snooze response.
+        //***********************************************
+        
+    	//find completed reminders
+    	List<LafReminder> remindersCompleted = getRemindersCompleted(pat);
+    	
+    	//find alerted reminders
+    	Date today = new Date();
+    	List<LafReminder> remindersAlerted = getReminders(pat, today);
+
+        //mark completed reminders
+        for(int ii = 0; ii< reminders.size(); ii++) { 
+            LafReminder reminder = reminders.get(ii);
+            LafReminder nextReminder = null;
+            LafReminder previousReminder = null;
+            
+            for(int jj=ii+1; jj<reminders.size(); jj++) {  
+            	nextReminder = reminders.get(jj);
+            	if(nextReminder.getFollowProcedure().equals(reminder.getFollowProcedure())) {
+            		break;           		
+            	}
+            }
+            
+            for(int jj=0; jj<ii; jj++) {  
+            	previousReminder = reminders.get(jj);
+            	if(previousReminder.getFollowProcedure().equals(reminder.getFollowProcedure())) {
+            		break;           		
+            	}
+            }            
+            
+            for(LafReminder reminderCompl : remindersCompleted) {
+            	if(reminderCompl.getFollowProcedure().equals(reminder.getFollowProcedure())) {
+            	   if(previousReminder==null && reminderCompl.getCompleteDate().before(reminder.getTargetDate())) {
+            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
+            		   reminder.setResponseDate(reminderCompl.getCompleteDate());
+            	   } else if(nextReminder==null && reminderCompl.getCompleteDate().after(reminder.getTargetDate())) {
+            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
+               		   reminder.setResponseDate(reminderCompl.getCompleteDate());
+            	   } else if(previousReminder!=null && reminderCompl.getCompleteDate().before(reminder.getTargetDate()) && reminderCompl.getCompleteDate().after(findMidDate(previousReminder.getTargetDate(), reminder.getTargetDate()))) {
+            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
+               		   reminder.setResponseDate(reminderCompl.getCompleteDate());
+            	   } else if(nextReminder!=null && reminderCompl.getCompleteDate().after(reminder.getTargetDate())&& reminderCompl.getCompleteDate().before(findMidDate(reminder.getTargetDate(), nextReminder.getTargetDate()))) {
+            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
+               		   reminder.setResponseDate(reminderCompl.getCompleteDate());
+            	   }            		
+            	}
+            }
+        }
+
+        //mark alerted reminders
+        for(int ii = 0; ii< reminders.size(); ii++) { 
+            LafReminder reminder = reminders.get(ii);
+            for(LafReminder alert : remindersAlerted) {
+            	if(reminder.getFollowProcedure().equals(alert.getFollowProcedure()) && reminder.getTargetDate().equals(alert.getTargetDate())) {
+         		   reminder.setFlag(LafReminder.FLAG_ALERTED);            	
+            	}
+            }
+        }
+        
+        //mark snoozed or scheduled reminders
+        for(int ii = 0; ii< reminders.size(); ii++) { 
+            LafReminder reminder = reminders.get(ii);
+            Date scheduleDate = this.findSnoozeOrScheduleDate(pat, reminder.getFollowProcedure(), reminder.getTargetDate(), "scheduleDate");
+            Date snoozeDate = this.findSnoozeOrScheduleDate(pat, reminder.getFollowProcedure(), reminder.getTargetDate(), "snoozeDate");
+            if(scheduleDate!=null) {
+            	reminder.setFlag(LafReminder.FLAG_SCHEDULED);
+            	reminder.setResponseDate(scheduleDate);
+            } else if(snoozeDate!=null) {
+            	reminder.setFlag(LafReminder.FLAG_SNOOZED);            	            	
+            	reminder.setResponseDate(snoozeDate);
+            }
+        }        
+        
+        //mark skipped reminders
+        for(int ii = 0; ii< reminders.size(); ii++) { 
+            LafReminder reminder = reminders.get(ii);
+            if(reminder.getTargetDate().before(today) && reminder.getFlag() == null) {
+            	reminder.setFlag(LafReminder.FLAG_SKIPPED);
+            }
+        }        
+        
     	return reminders;
      }
     
 	/**
-     * Auto generated method comment
+     * Find target dates based solely on follow-up care frequency rule
      * 
      * @param surgeryDate
      * @param followYears
@@ -548,7 +669,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     }
 
 	/**
-     * Auto generated method comment
+     * Find next target date based on follow-up care frequency rule, one-half-matching rule (find a match to recommended date for today's date or for every completion date as well), today's date and last completed date
      * 
      * @param surgeryDate
      * @param followYears
@@ -569,28 +690,31 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     		}
     	}
 
-     	Date startDate = surgDate;
+     	Date matchDate = null;
      	if(lastCompleted != null) {
-     		startDate = lastCompleted.getCompleteDate();
+     		matchDate = findMatchDate(lastCompleted.getCompleteDate(), surgDate, split2);
      	}
+     	
+     	Date today = new Date();
     	    	 
     	Date nextTargetDate = null;
     	Date refDate1 = surgDate;
     	Date refDate2 = null;
     	for(int ii=0; ii<split2.length; ii++) {
-    		refDate2 = findDate(surgDate, split2[ii]);
-    		
-    		if(startDate.before(refDate2)) {
+    		refDate1 = findDate(surgDate, split2[ii]);
+    		if(ii<split2.length-1) {
+    			refDate2 = findDate(surgDate, split2[ii+1]);
+    		} else {
+    			refDate2 = refDate1;
+    		}
+    		if(today.before(refDate2)) {
     			Date refDate12 = findMidDate(refDate1, refDate2);
     			
-    			if(startDate.before(refDate12)) {
+    			if(today.before(refDate12) && (matchDate==null || !matchDate.equals(refDate1))) {
     				//nextTargetDate = findDate(startDate, split2[ii]);
-    				nextTargetDate = findDate(refDate1, split2[ii]);
-    			} else if(ii<split2.length - 1){
-    				//nextTargetDate = findDate(startDate, split2[ii+1]);    				
-    				nextTargetDate = findDate(refDate1, split2[ii+1]);    				
-    			} else {
-    				nextTargetDate = null;
+    				nextTargetDate = refDate1;
+    			} else if (matchDate==null || !matchDate.equals(refDate2)){
+    				nextTargetDate = refDate2;
     			}
     			
     			break;
@@ -602,6 +726,43 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
         return nextTargetDate;
     }
     
+	/**
+     * Find a match to a recommended date for a given completion date or for today's date
+     * 
+     * @param completeDate
+     * @param split2
+     * @return
+     */
+    private Date findMatchDate(Date completeDate, Date surgDate, String[] candidateDates) {
+    	Date candidateDate = findDate(surgDate, candidateDates[0]);
+    	Date nextRefDate = null;
+    	Date matchDate = null;
+    	for(int ii=0; ii<candidateDates.length; ii++) {   		
+    		if(ii<candidateDates.length-1) {
+    			nextRefDate = findDate(surgDate, candidateDates[ii+1]);
+    		} else {
+    			nextRefDate = candidateDate;
+    		}
+    		if(completeDate.before(nextRefDate)) {
+    			Date refDate12 = findMidDate(candidateDate, nextRefDate);
+    			
+    			if(completeDate.before(refDate12)) {
+    				//nextTargetDate = findDate(startDate, split2[ii]);
+    				matchDate = candidateDate;
+    			} else {
+    				matchDate = nextRefDate;
+    			}
+    			
+    			break;
+    		}
+    		
+    		candidateDate = nextRefDate;    		
+    	}
+    	
+	    return matchDate;
+    }
+
+
 	/**
      * Auto generated method comment
      * 

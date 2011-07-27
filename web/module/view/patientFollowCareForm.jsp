@@ -105,7 +105,7 @@ Customized plan of care recommendation is not available. Please enter your cance
 					<openmrs:formatDate date="${reminder.targetDate}"/>
 			    </td>
 			    <td>
-			        ${reminder.followProcedure.name}
+			        ${reminder.followProcedure.name} <span style="color: green;">(${reminder.flag} ${reminder.responseDate}) </span>
 			    </td>
 			    <td> 
 
@@ -136,7 +136,6 @@ Customized plan of care recommendation is not available. Please enter your cance
 			    <th>Date Completed</th>
 			    <th>Care Received</th>
 			    <th>Doctor Name</th>
-			    <th>Results</th>
 			    <th>Comments</th>
 			    <th>Action</th>
 			  </tr>
@@ -163,13 +162,6 @@ Customized plan of care recommendation is not available. Please enter your cance
 			</spring:bind>
 			    </td>
 			    <td>
-					<form:select path="patient.remindersCompleted[${status.index}].responseType"  onchange="onChange(${reminder.id})">
-						<c:forEach items="${patient.responseTypes}" var="responseType">
-							<option value="${responseType}" label="${responseType}" <c:if test="${responseType == reminder.responseType}">selected="selected"</c:if>>${responseType}</option>
-						</c:forEach>
-			    	</form:select>
-			    </td>
-			    <td>
 			<spring:bind path="patient.remindersCompleted[${status.index}].responseComments">
 				<input type="text" name="${status.expression}" id="comments${reminder.id}" onChange="onChange(${reminder.id})" value="${status.value}"/>
 			</spring:bind>
@@ -192,7 +184,6 @@ Customized plan of care recommendation is not available. Please enter your cance
 			    <th>Date Completed</th>
 			    <th>Recommended Care</th>
 			    <th>Doctor Name</th>
-			    <th>Results</th>
 			    <th>Comments</th>
 			  </tr>
 		  </thead>
@@ -211,13 +202,6 @@ Customized plan of care recommendation is not available. Please enter your cance
 		    	</td>			    
 			    <td>
 				    <input type="text" name="docNameNew" id="docNameNew"/>
-			    </td>
-			    <td>
-					<select name="resultTypeNew" id="resultTypeNew">
-						<c:forEach items="${patient.responseTypes}" var="responseType">
-							<option value="${responseType}" label="${responseType}">${responseType}</option>
-						</c:forEach>
-			    	</select>
 			    </td>
 			    <td>
 				    <input type="text" name="commentsNew" id="commentsNew" value="${status.value}"/>

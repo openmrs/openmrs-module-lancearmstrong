@@ -28,6 +28,11 @@ import org.openmrs.api.context.Context;
 public class LafReminder {
 	public static final String RESPONSE_COMPLETED = "Completed";
 	public static final String RESPONSE_SKIPPED = "Skipped";
+	public static String FLAG_COMPLETED = "COMPLETED";
+	public static String FLAG_SCHEDULED = "SCHEDULED";
+	public static String FLAG_SNOOZED = "SNOOZED";
+	public static String FLAG_ALERTED = "ALERTED";
+	public static String FLAG_SKIPPED = "SKIPPED";
 	private Integer id;	
 	private Patient patient;
 	private Concept followProcedure;
@@ -40,7 +45,7 @@ public class LafReminder {
 	private Date targetDate;
 	private Date CompleteDate;
 	private String doctorName; 
-	
+	private String flag;
     /**
      * Sort by start_date
      * 
@@ -117,7 +122,17 @@ public class LafReminder {
     	return responseUser;
     }
 	
-    public void setResponseUser(User responseUser) {
+    
+    public String getFlag() {
+    	return flag;
+    }
+
+	
+    public void setFlag(String flag) {
+    	this.flag = flag;
+    }
+
+	public void setResponseUser(User responseUser) {
     	this.responseUser = responseUser;
     }
 
