@@ -22,36 +22,6 @@
 </script>
 
 <script type="text/javascript">
-	$j(document).ready(function() {
-		$j('#markAsCompletedPopup').dialog({
-			title: 'dynamic',
-			autoOpen: false,
-			draggable: false,
-			resizable: false,
-			width: '50%',
-			modal: true,
-			open: function(a, b) {  }
-		});	
-		$j('#markAsScheduledPopup').dialog({
-			title: 'dynamic',
-			autoOpen: false,
-			draggable: false,
-			resizable: false,
-			width: '50%',
-			modal: true,
-			open: function(a, b) {  }
-		});		
-		$j('#markAsSnoozePopup').dialog({
-			title: 'dynamic',
-			autoOpen: false,
-			draggable: false,
-			resizable: false,
-			width: '50%',
-			modal: true,
-			open: function(a, b) {  }
-		});				
-	});
-
 	function loadPopup(title, popupId) {
 		$j('#'+popupId)
 			.dialog('option', 'title', title)
@@ -88,6 +58,44 @@
 			            	  	  $j('#'+popupId).dialog("close");
 			            	  } 
 			              }
+			          }			          
+			         ]
+		});	
+		loadPopup("Alert response", popupId);
+			
+		return false;
+	}	
+	
+	function markNotPerformed(self, alertId, targetDate, patientId, popupId) {
+		$j('#'+popupId).dialog({
+			title: 'dynamic',
+			autoOpen: false,
+			draggable: false,
+			resizable: false,
+			width: '50%',
+			modal: true,
+			buttons: [
+			          {
+			              text: "Yes",
+			              click: function() {
+			            	  var ret = saveNotPerformed(patientId, alertId, targetDate, "Yes");			            	  
+			            	  if(ret == 0) {			            	  
+			            	  	  $j('#'+popupId).dialog("close");
+			            	  } 
+			              }
+			          },
+			          {
+			              text: "No",
+			              click: function() {
+			            	  var ret = saveNotPerformed(patientId, alertId, targetDate, "No");			            	  
+			            	  if(ret == 0) {			            	  
+			            	  	  $j('#'+popupId).dialog("close");
+			            	  }
+			              }
+			          },
+			          {
+			              text: "Cancel",
+			              click: function() { $j('#'+popupId).dialog("close"); }
 			          }			          
 			         ]
 		});	
@@ -191,6 +199,29 @@
 		);				
 		return 0;
 	}	
+	
+	function saveNotPerformed(patientId, alertId, targetDate, yesOrNo){		
+		var careType = alertId;
+		var splits = targetDate.split("/");
+		var ys = splits[2]; // Convert year, month and date to strings 
+		var ms = splits[0];   
+		var ds = splits[1];   
+		if ( ms.length == 1 ) ms = "0" + ms; // Add leading zeros to month and date if required 
+		if ( ds.length == 1 ) ds = "0" + ds; 
+		
+		var targetDate1 = ds + "/" + ms + "/" + ys;
+		var targetDate2 = parseSimpleDate(targetDate1, '<openmrs:datePattern />');
+		
+		DWRLafService.followupCareNotPerformed(patientId, yesOrNo, careType, targetDate2,
+			{
+		  		callback:function(str) { 
+		    		location.reload(true);
+	  		    }
+		    }
+		);				
+		return 0;
+	}	
+	
 </script>
 
 <div id="markAsCompletedPopup">		
@@ -268,37 +299,18 @@
 	</div>
 </div>
 
+<div id="markAsNotPerformedPopup">		
+	<div id="addNotPerformedDetailDiv">
+		You and/or your provider have made a decision not to perform this test. <br/><br/>If you click "Yes", this test will be removed from your follow-up care calendar. <br/>If you click "No", you may want to discuss the need for this test with your provider.	
+		
+	</div>
+</div>
 
 <div id="alertContent">
-<!-- 
-		<laf:forEachAlert>
-			<c:if test="${varStatus.first}"><div id="alertOuterBox"><div id="alertInnerBox"></c:if>
-				<div class="alert">
-					<a href="#markCompleted" onClick="return markAlert(this, '${alert.id}', '${alert.dateToExpire}', '${patient.patient.patientId}','markAsCompletedPopup')" HIDEFOCUS class="markAlertRead">
-						 <span class="markAlertText"><spring:message code="lancearmstrong.Alert.markAsCompleted"/></span>
-					</a>
-					<a href="#markScheduled" onClick="return markAlert(this, '${alert.id}', '${alert.dateToExpire.date}/${alert.dateToExpire.month+1}/${alert.dateToExpire.year+1900}', '${patient.patient.patientId}','markAsScheduledPopup')" HIDEFOCUS class="markAlertRead">
-						 <span class="markAlertText"><spring:message code="lancearmstrong.Alert.markAsScheduled"/></span>
-					</a>
-					<a href="#markSnooze" onClick="return markAlert(this, '${alert.id}', '${alert.dateToExpire.date}/${alert.dateToExpire.month+1}/${alert.dateToExpire.year+1900}', '${patient.patient.patientId}','markAsSnoozePopup')" HIDEFOCUS class="markAlertRead">
-						 <span class="markAlertText"><spring:message code="lancearmstrong.Alert.markAsSnooze"/></span>
-					</a>
-					Your <span id="alertText">${alert.text}</span> <c:if test="${alert.satisfiedByAny}"><i class="smallMessage">(<spring:message code="lancearmstrong.Alert.mark.satisfiedByAny"/>)</i></c:if>
-				</div>
-			<c:if test="${varStatus.last}">
-				</div>
-				<div id="alertBar">
-					<img src="${pageContext.request.contextPath}/images/alert.gif" align="center" alt='<spring:message code="lancearmstrong.Alert.unreadAlert"/>' title='<spring:message code="lancearmstrong.Alert.unreadAlert"/>'/>
-					<c:if test="${varStatus.count == 1}"><spring:message code="lancearmstrong.Alert.unreadAlert"/></c:if>
-					<c:if test="${varStatus.count != 1}"><spring:message code="lancearmstrong.Alert.unreadAlerts" arguments="${varStatus.count}" /></c:if>
-				</div>
-				</div>
-			</c:if>
-		</laf:forEachAlert>
--->		
 		  <spring:message code="lancearmstrong.Alert.mark.completed" var="hoverCompleted"/>
 		  <spring:message code="lancearmstrong.Alert.mark.scheduled" var="hoverScheduled"/>
 		  <spring:message code="lancearmstrong.Alert.mark.snooze" var="hoverSnooze"/>
+		  <spring:message code="lancearmstrong.Alert.mark.not.performed" var="hoverNotPerformed"/>
 		  <div class="alert" style="background-color: lightpink; margin-top:8px"></div>
 		  <c:forEach var="alert" items="${patient.alerts}" varStatus="status">	
 			   <c:if test="${status.first}"><div id="alertOuterBox"><div id="alertInnerBox"></c:if>
@@ -310,9 +322,14 @@
 						<a style="float: none;" title="${hoverScheduled}" href="#markScheduled" onClick="return markAlert(this, '${alert.id}', '${alert.dateToExpire.date}/${alert.dateToExpire.month+1}/${alert.dateToExpire.year+1900}', '${patient.patient.patientId}','markAsScheduledPopup')" HIDEFOCUS class="markAlertRead">
 							 <span class="markAlertText"  style="text-decoration: underline; float: none;font-weight:bold;"><spring:message code="lancearmstrong.Alert.markAsScheduled"/></span>
 						</a>
+						<%-- 
 						<a style="float: none;" title="${hoverSnooze}" href="#markSnooze" onClick="return markAlert(this, '${alert.id}', '${alert.dateToExpire.date}/${alert.dateToExpire.month+1}/${alert.dateToExpire.year+1900}', '${patient.patient.patientId}','markAsSnoozePopup')" HIDEFOCUS class="markAlertRead">
 							 <span class="markAlertText"  style="text-decoration: underline; float: none;font-weight:bold;"><spring:message code="lancearmstrong.Alert.markAsSnooze"/></span>
 						</a>
+						--%>
+						<a style="float: none;" title="${hoverNotPerformed}" href="#markNotPerformed" onClick="return markNotPerformed(this, '${alert.id}', '${alert.dateToExpire.date}/${alert.dateToExpire.month+1}/${alert.dateToExpire.year+1900}', '${patient.patient.patientId}','markAsNotPerformedPopup')" HIDEFOCUS class="markAlertRead">
+							 <span class="markAlertText"  style="text-decoration: underline; float: none;font-weight:bold;"><spring:message code="lancearmstrong.Alert.markAsNotPerformed"/></span>
+						</a>						
 					</div>
 	  		  	<c:if test="${status.last}">
 					</div>
@@ -351,5 +368,14 @@
 			width: '50%',
 			modal: true,
 			open: function(a, b) {  }
-		});				
+		});			
+		$j('#markAsNotPerformedPopup').dialog({
+			title: 'dynamic',
+			autoOpen: false,
+			draggable: false,
+			resizable: false,
+			width: '20%',
+			modal: true,
+			open: function(a, b) {  }
+		});			
 </script>			

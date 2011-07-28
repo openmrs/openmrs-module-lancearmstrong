@@ -13,6 +13,9 @@
  */
 package org.openmrs.module.lancearmstrong;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
@@ -31,5 +34,20 @@ public class LafUtil {
     }
 
     public static void main(final String[] args) {
+    }
+    
+    public static Date clearDate(Date dateTime) {
+    	if(dateTime == null) {
+    		return null;
+    	}
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dateTime);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        Date dateWithoutTime = cal.getTime();
+        
+        return dateWithoutTime;
     }
 }

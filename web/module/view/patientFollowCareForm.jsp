@@ -99,16 +99,20 @@ Customized plan of care recommendation is not available. Please enter your cance
 		  </thead>
 		  <tbody>
 		  <c:forEach var="reminder" items="${patient.reminders}" varStatus="status">
-	
+		    <c:if test="${reminder.flag == null || (reminder.flag != 'SKIPPED' && reminder.flag != 'NOT PERFORMED: YES')}">			         	
 			  <tr>
 				<td>
 					<openmrs:formatDate date="${reminder.targetDate}"/>
 			    </td>
 			    <td>
-			        ${reminder.followProcedure.name} <span style="color: green;">(${reminder.flag} ${reminder.responseDate}) </span>
-			    </td>
-			    <td> 
-
+			        ${reminder.followProcedure.name}
+			        <c:if test="${reminder.flag != null}">			         
+			        	<br/><span style="color: green;">(${reminder.flag}<c:if test="${reminder.responseDate != null}"> ${reminder.responseDateFormated}</c:if>)
+			           </span>
+			        </c:if>
+			    </td>			    
+			 </tr>
+		    </c:if>
 	 	  </c:forEach>  
 		  </tbody>   
 	</table>

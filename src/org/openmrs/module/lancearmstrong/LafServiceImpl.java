@@ -391,7 +391,27 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 	    }
 	    
 	    return ssDate;
-    }    
+    } 
+    
+    private String findNotPerformedDecision(Patient patient, Concept careType, Date targetDate, String type) {
+	    LafReminder reminder = this.reminderDao.getLafReminder(patient, careType, targetDate);
+	    
+	    String ssValue = null;
+	    String ssType = null;
+	    if(reminder != null) {
+	    	String[] splits = reminder.getResponseAttributes().split("=");
+	    	if(splits.length >=2) {
+	    		ssType = splits[0];
+	    		if(type.equals(ssType)) {
+    				ssValue = splits[1];
+	    		} else {
+	    			log.warn("Unknown attribute type is found: " + reminder.getResponseAttributes());
+	    		}
+	    	}
+	    }
+	    
+	    return ssValue;
+    }     
 
 
 	/**
@@ -426,6 +446,9 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     private LafReminder findLastCompleted(List<LafReminder> remindersCompleted, Concept followProcedure) {
 	    // TODO Auto-generated method stub
     	LafReminder lastCompletedReminder = null;
+    	if(remindersCompleted==null) {
+    		return null;
+    	}
     	for(LafReminder reminder : remindersCompleted) {
     		if(reminder.getFollowProcedure().getId()==followProcedure.getId()) {
     			if(lastCompletedReminder == null || lastCompletedReminder.getCompleteDate().before(reminder.getCompleteDate())) {
@@ -547,7 +570,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     	} else {
     		log.error("Guideline is not found for cancer type:" + type + " and cancer stage: "+ stage);
     	}
-
+    	
     	//sort guidelines by target date
         Collections.sort(reminders, LafReminder.getDateComparator());
     	
@@ -564,52 +587,57 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     	List<LafReminder> remindersAlerted = getReminders(pat, today);
 
         //mark completed reminders
-        for(int ii = 0; ii< reminders.size(); ii++) { 
-            LafReminder reminder = reminders.get(ii);
-            LafReminder nextReminder = null;
-            LafReminder previousReminder = null;
-            
-            for(int jj=ii+1; jj<reminders.size(); jj++) {  
-            	nextReminder = reminders.get(jj);
-            	if(nextReminder.getFollowProcedure().equals(reminder.getFollowProcedure())) {
-            		break;           		
-            	}
-            }
-            
-            for(int jj=0; jj<ii; jj++) {  
-            	previousReminder = reminders.get(jj);
-            	if(previousReminder.getFollowProcedure().equals(reminder.getFollowProcedure())) {
-            		break;           		
-            	}
-            }            
-            
-            for(LafReminder reminderCompl : remindersCompleted) {
-            	if(reminderCompl.getFollowProcedure().equals(reminder.getFollowProcedure())) {
-            	   if(previousReminder==null && reminderCompl.getCompleteDate().before(reminder.getTargetDate())) {
-            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
-            		   reminder.setResponseDate(reminderCompl.getCompleteDate());
-            	   } else if(nextReminder==null && reminderCompl.getCompleteDate().after(reminder.getTargetDate())) {
-            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
-               		   reminder.setResponseDate(reminderCompl.getCompleteDate());
-            	   } else if(previousReminder!=null && reminderCompl.getCompleteDate().before(reminder.getTargetDate()) && reminderCompl.getCompleteDate().after(findMidDate(previousReminder.getTargetDate(), reminder.getTargetDate()))) {
-            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
-               		   reminder.setResponseDate(reminderCompl.getCompleteDate());
-            	   } else if(nextReminder!=null && reminderCompl.getCompleteDate().after(reminder.getTargetDate())&& reminderCompl.getCompleteDate().before(findMidDate(reminder.getTargetDate(), nextReminder.getTargetDate()))) {
-            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
-               		   reminder.setResponseDate(reminderCompl.getCompleteDate());
-            	   }            		
-            	}
-            }
-        }
+        if(remindersCompleted != null) {
 
+	        for(int ii = 0; ii< reminders.size(); ii++) { 
+	            LafReminder reminder = reminders.get(ii);
+	            LafReminder nextReminder = null;
+	            LafReminder previousReminder = null;
+	            
+	            for(int jj=ii+1; jj<reminders.size(); jj++) {  
+	            	nextReminder = reminders.get(jj);
+	            	if(nextReminder.getFollowProcedure().equals(reminder.getFollowProcedure())) {
+	            		break;           		
+	            	}
+	            }
+	            
+	            for(int jj=0; jj<ii; jj++) {  
+	            	previousReminder = reminders.get(jj);
+	            	if(previousReminder.getFollowProcedure().equals(reminder.getFollowProcedure())) {
+	            		break;           		
+	            	}
+	            }            
+	            
+	            for(LafReminder reminderCompl : remindersCompleted) {
+	            	if(reminderCompl.getFollowProcedure().equals(reminder.getFollowProcedure())) {
+	            	   if(previousReminder==null && reminderCompl.getCompleteDate().before(reminder.getTargetDate())) {
+	            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
+	            		   //reminder.setResponseDate(reminderCompl.getCompleteDate());
+	            	   } else if(nextReminder==null && reminderCompl.getCompleteDate().after(reminder.getTargetDate())) {
+	            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
+	               		   //reminder.setResponseDate(reminderCompl.getCompleteDate());
+	            	   } else if(previousReminder!=null && reminderCompl.getCompleteDate().before(reminder.getTargetDate()) && reminderCompl.getCompleteDate().after(findMidDate(previousReminder.getTargetDate(), reminder.getTargetDate()))) {
+	            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
+	               		   //reminder.setResponseDate(reminderCompl.getCompleteDate());
+	            	   } else if(nextReminder!=null && reminderCompl.getCompleteDate().after(reminder.getTargetDate())&& reminderCompl.getCompleteDate().before(findMidDate(reminder.getTargetDate(), nextReminder.getTargetDate()))) {
+	            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
+	               		   //reminder.setResponseDate(reminderCompl.getCompleteDate());
+	            	   }            		
+	            	}
+	            }
+	        }
+        }
+        
         //mark alerted reminders
-        for(int ii = 0; ii< reminders.size(); ii++) { 
-            LafReminder reminder = reminders.get(ii);
-            for(LafReminder alert : remindersAlerted) {
-            	if(reminder.getFollowProcedure().equals(alert.getFollowProcedure()) && reminder.getTargetDate().equals(alert.getTargetDate())) {
-         		   reminder.setFlag(LafReminder.FLAG_ALERTED);            	
-            	}
-            }
+        if(remindersAlerted != null) {
+	        for(int ii = 0; ii< reminders.size(); ii++) { 
+	            LafReminder reminder = reminders.get(ii);
+	            for(LafReminder alert : remindersAlerted) {
+	            	if(reminder.getFollowProcedure().equals(alert.getFollowProcedure()) && reminder.getTargetDate().equals(alert.getTargetDate())) {
+	         		   reminder.setFlag(LafReminder.FLAG_ALERTED);            	
+	            	}
+	            }
+	        }
         }
         
         //mark snoozed or scheduled reminders
@@ -619,11 +647,22 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
             Date snoozeDate = this.findSnoozeOrScheduleDate(pat, reminder.getFollowProcedure(), reminder.getTargetDate(), "snoozeDate");
             if(scheduleDate!=null) {
             	reminder.setFlag(LafReminder.FLAG_SCHEDULED);
-            	reminder.setResponseDate(scheduleDate);
+     		    reminder.setResponseDate(scheduleDate);
             } else if(snoozeDate!=null) {
             	reminder.setFlag(LafReminder.FLAG_SNOOZED);            	            	
-            	reminder.setResponseDate(snoozeDate);
+     		    reminder.setResponseDate(snoozeDate);
             }
+        } 
+        
+        //mark Not-Performed reminders
+        for(int ii = 0; ii< reminders.size(); ii++) { 
+            LafReminder reminder = reminders.get(ii);
+            String yesOrNo = this.findNotPerformedDecision(pat, reminder.getFollowProcedure(), reminder.getTargetDate(), "notPerformed");
+            if("Yes".equals(yesOrNo)) {
+            	reminder.setFlag(LafReminder.FLAG_NOT_PERFORMED_YES);
+            } else if("No".equals(yesOrNo)) {
+            	//reminder.setFlag(LafReminder.FLAG_NOT_PERFORMED_NO);            	            	
+             }
         }        
         
         //mark skipped reminders

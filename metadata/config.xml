@@ -5,8 +5,8 @@
 	
 	<!-- Base Module Properties -->
 	<id>lancearmstrong</id>
-	<name>A Cancel Tookit</name>
-	<version>0.1</version>
+	<name>Personal Cancer Tookit</name>
+	<version>1.0.0</version>
 	<package>org.openmrs.module.@MODULE_ID@</package>
 	<author>Hui Xiao</author>
 	<description>
@@ -93,6 +93,7 @@
 				<include method="followupCareCompleted"/>
 				<include method="followupCareScheduled"/>
 				<include method="followupCareSnooze"/>
+				<include method="followupCareNotPerformed"/>
 			</create>
 		</allow>
 	</dwr>

@@ -28,11 +28,13 @@ import org.openmrs.api.context.Context;
 public class LafReminder {
 	public static final String RESPONSE_COMPLETED = "Completed";
 	public static final String RESPONSE_SKIPPED = "Skipped";
+	public static final String FLAG_NOT_PERFORMED_YES = "NOT PERFORMED: YES"; //removed its display from follow-up care calendar
+	public static final String FLAG_NOT_PERFORMED_NO = "NOT PERFORMED: NO";
 	public static String FLAG_COMPLETED = "COMPLETED";
 	public static String FLAG_SCHEDULED = "SCHEDULED";
-	public static String FLAG_SNOOZED = "SNOOZED";
-	public static String FLAG_ALERTED = "ALERTED";
-	public static String FLAG_SKIPPED = "SKIPPED";
+	public static String FLAG_SNOOZED = "SNOOZED"; //removed its entries from database
+	public static String FLAG_ALERTED = "NEXT DUE";
+	public static String FLAG_SKIPPED = "SKIPPED"; //removed its display from follow-up care calendar
 	private Integer id;	
 	private Patient patient;
 	private Concept followProcedure;
@@ -46,7 +48,18 @@ public class LafReminder {
 	private Date CompleteDate;
 	private String doctorName; 
 	private String flag;
-    /**
+	private String responseDateFormated;
+    
+    public String getResponseDateFormated() {
+    	return (responseDate==null? null : Context.getDateFormat().format(responseDate));
+    }
+
+	
+    public void setResponseDateFormated(String responseDateFormated) {
+    	this.responseDateFormated = responseDateFormated;
+    }
+
+	/**
      * Sort by start_date
      * 
      * @return date comparator
@@ -87,11 +100,11 @@ public class LafReminder {
     }
 	
     public Date getResponseDate() {
-    	return responseDate;
+    	return LafUtil.clearDate(responseDate);
     }
 	
     public void setResponseDate(Date responseDate) {
-    	this.responseDate = responseDate;
+    	this.responseDate = LafUtil.clearDate(responseDate);
     }
 	
     public String getResponseType() {
@@ -137,22 +150,22 @@ public class LafReminder {
     }
 
 	
-    public Date getTargetDate() {
-    	return targetDate;
+    public Date getTargetDate() {    	
+    	return LafUtil.clearDate(targetDate);
     }
 
 	
     public void setTargetDate(Date targetDate) {
-    	this.targetDate = targetDate;
+    	this.targetDate = LafUtil.clearDate(targetDate);
     }
 
 	
     public Date getCompleteDate() {
-    	return CompleteDate;
+    	return LafUtil.clearDate(CompleteDate);
     }
 
 	public void setCompleteDate(Date completeDate) {
-    	CompleteDate = completeDate;
+    	CompleteDate = LafUtil.clearDate(completeDate);
     }	
     
     public String getDoctorName() {

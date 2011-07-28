@@ -8,6 +8,7 @@ import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.lancearmstrong.LafReminder;
+import org.openmrs.module.lancearmstrong.LafUtil;
 import org.openmrs.module.lancearmstrong.db.LafReminderDAO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -118,8 +119,8 @@ public class HibernateLafReminderDAO implements LafReminderDAO {
         Criteria crit = sessionFactory.getCurrentSession().createCriteria(LafReminder.class);
         crit.add(Restrictions.eq("patient", pat));
         crit.add(Restrictions.eq("followProcedure", careType));
-        crit.add(Restrictions.ge("targetDate", targetDate));
-        crit.add(Restrictions.lt("targetDate", oneDayLater(targetDate)));
+        crit.add(Restrictions.eq("targetDate", LafUtil.clearDate(targetDate)));
+        //crit.add(Restrictions.lt("targetDate", oneDayLater(targetDate)));
         crit.add(Restrictions.isNull("completeDate"));
         crit.addOrder(Order.asc("targetDate"));
         List<LafReminder> list = (List<LafReminder>) crit.list();

@@ -104,6 +104,23 @@ public class DWRLafService {
 		LafUtil.getService().getReminderDao().saveLafReminder(reminder);
 	}
 	
+	public void followupCareNotPerformed(Integer patientId, String yesOrNo, Integer careType, Date targetDate) {
+		log.debug("Calling DWRLafService.followupCareScheduled...patientId=" + patientId + ", yesOrNo=" + yesOrNo + ",careType=" + careType + ", targetDate=" + targetDate);
+				
+		LafReminder reminder = LafUtil.getService().getReminderDao().getLafReminder(Context.getPatientService().getPatient(patientId), Context.getConceptService().getConcept(careType), targetDate);
+		if(reminder != null) {
+			reminder.setResponseAttributes("notPerformed="+yesOrNo);			
+		} else {		
+			reminder = new LafReminder();		
+			reminder.setPatient(Context.getPatientService().getPatient(patientId));
+			reminder.setId(null);
+			reminder.setFollowProcedure(Context.getConceptService().getConcept(careType));
+			reminder.setTargetDate(targetDate);
+			reminder.setResponseAttributes("notPerformed="+yesOrNo);			
+		}
+		LafUtil.getService().getReminderDao().saveLafReminder(reminder);
+	}
+	
 	public LafPatient getLafPatient() {
 		return new LafPatient(null, null, null);
 	}
