@@ -66,7 +66,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     private final static String  CHEMOTHERAPY_ENCOUNTER = "CANCER TREATMENT - CHEMOTHERAPY"; 
     private final static String  SURGERY_ENCOUNTER = "CANCER TREATMENT - SURGERY";
     
-    private final static int ALERT_DAYS = 30; 
+    private final static int ALERT_DAYS = 60; 
 	
     //ANY TREATMENT TYPE=0, CHEMOTHERAPY=1, RADIOLOGY=2, SURGERY=3
     //6225-6248: Concept ID's of side effects
@@ -305,7 +305,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 	    	for(LafGuideline guideline : guidelines) {
 	    		LafReminder lastCompleted = findLastCompleted(remindersCompleted, guideline.getFollowProcedure());
 	    		Date targetDate = findNextTargetDate(surgDate, radType, guideline.getFollowYears(), lastCompleted);
-	    		Date alertDate = findAlertDate(pat, guideline.getFollowProcedure(), targetDate); //based on default offset of 30 days and user response to earlier alert
+	    		Date alertDate = findAlertDate(pat, guideline.getFollowProcedure(), targetDate); //based on default offset of 60 days and user response to earlier alert
 	    		log.debug("guideline="+guideline.getFollowProcedure() + ", years = " + guideline.getFollowYears());
 	    		log.debug("lastCompleted=" + lastCompleted);
 	    		log.debug("targetDate=" + targetDate);
@@ -313,17 +313,23 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 	    		    		    		
 	    		if(alertDate!= null && indexDate.after(alertDate)) {
 	    			log.debug("Alert is found for patient: " + pat + ", guideline=" + guideline + ", targetDate=" + targetDate + ", alertStartDate=" + alertDate);
+
+	    			//find Not Performed flag for this reminder
+	    			String notPerformedFlag = findAttribute(pat, guideline.getFollowProcedure(), targetDate, "notPerformed");
+	    			if(notPerformedFlag != null && "Yes".equals(notPerformedFlag)) {
+	    				continue; //no need to alert
+	    			}
 	    			
 	    			//find snooze date or schedule date for this reminder
 	    			Date ssDate = findSnoozeOrScheduleDate(pat, guideline.getFollowProcedure(), targetDate);
 	    			
-	    			if(ssDate == null || ssDate.before(alertDate)) {
+	    			if(ssDate == null || ssDate.before(new Date())) {
 			    		LafReminder reminder = new LafReminder();
 			    		reminder.setPatient(pat);
 			    		reminder.setFollowProcedure(guideline.getFollowProcedure());
 			    		reminder.setTargetDate(targetDate);	    		
 			    		newReminders.add(reminder);
-	    			}
+	    			}	    				    			
 	    		}
 	    	}   	
     	} else {
@@ -334,7 +340,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 
     	return newReminders;    	
     }    
-
+    
 	/**
      * Auto generated method comment
      * 
@@ -359,14 +365,17 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 		    			log.error("Bad date format: ssType=" + ssType + ", ssDate=" + ssDate);	    				
 	    			}
 	    			log.debug("This reminder is snoozed or scheduled: ssType=" + ssType + ", ssDate=" + ssDate);
-	    		} else {
-	    			log.warn("Unknown attribute type is found: " + reminder.getResponseAttributes());
 	    		}
 	    	}
 	    }
 	    
+	    //void this date if it is older than today's date
+	    //if(ssDate!=null && ssDate.before(new Date())) {
+	    //	ssDate = null;
+	    //}
+	    
 	    return ssDate;
-    }
+    }    
     
     private Date findSnoozeOrScheduleDate(Patient patient, Concept careType, Date targetDate, String type) {
 	    LafReminder reminder = this.reminderDao.getLafReminder(patient, careType, targetDate);
@@ -384,16 +393,19 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 		    			log.error("Bad date format: ssType=" + ssType + ", ssDate=" + ssDate);	    				
 	    			}
 	    			log.debug("This reminder is snoozed or scheduled: ssType=" + ssType + ", ssDate=" + ssDate);
-	    		} else {
-	    			log.warn("Unknown attribute type is found: " + reminder.getResponseAttributes());
-	    		}
+	    		} 
 	    	}
+	    }
+	    
+	    //void this date if it is older than today's date
+	    if(ssDate!=null && ssDate.before(new Date())) {
+	    	ssDate = null;
 	    }
 	    
 	    return ssDate;
     } 
     
-    private String findNotPerformedDecision(Patient patient, Concept careType, Date targetDate, String type) {
+    private String findAttribute(Patient patient, Concept careType, Date targetDate, String type) {
 	    LafReminder reminder = this.reminderDao.getLafReminder(patient, careType, targetDate);
 	    
 	    String ssValue = null;
@@ -404,9 +416,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 	    		ssType = splits[0];
 	    		if(type.equals(ssType)) {
     				ssValue = splits[1];
-	    		} else {
-	    			log.warn("Unknown attribute type is found: " + reminder.getResponseAttributes());
-	    		}
+	    		} 
 	    	}
 	    }
 	    
@@ -585,8 +595,45 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     	//find alerted reminders
     	Date today = new Date();
     	List<LafReminder> remindersAlerted = getReminders(pat, today);
+        
+        //mark alerted reminders
+        if(remindersAlerted != null) {
+	        for(int ii = 0; ii< reminders.size(); ii++) { 
+	            LafReminder reminder = reminders.get(ii);
+	            for(LafReminder alert : remindersAlerted) {
+	            	if(reminder.getFollowProcedure().equals(alert.getFollowProcedure()) && reminder.getTargetDate().equals(alert.getTargetDate())) {
+	         		   reminder.setFlag(LafReminder.FLAG_ALERTED);            	
+	            	}
+	            }
+	        }
+        }
+        
+        //mark snoozed or scheduled reminders
+        for(int ii = 0; ii< reminders.size(); ii++) { 
+            LafReminder reminder = reminders.get(ii);
+            Date scheduleDate = this.findSnoozeOrScheduleDate(pat, reminder.getFollowProcedure(), reminder.getTargetDate(), "scheduleDate");
+            Date snoozeDate = this.findSnoozeOrScheduleDate(pat, reminder.getFollowProcedure(), reminder.getTargetDate(), "snoozeDate");
+            if(scheduleDate!=null) {
+            	reminder.setFlag(LafReminder.FLAG_SCHEDULED);
+     		    reminder.setResponseDate(scheduleDate);
+            } else if(snoozeDate!=null) {
+            	reminder.setFlag(LafReminder.FLAG_SNOOZED);            	            	
+     		    reminder.setResponseDate(snoozeDate);
+            }
+        } 
+        
+        //mark Not-Performed reminders
+        for(int ii = 0; ii< reminders.size(); ii++) { 
+            LafReminder reminder = reminders.get(ii);
+            String yesOrNo = this.findAttribute(pat, reminder.getFollowProcedure(), reminder.getTargetDate(), "notPerformed");
+            if("Yes".equals(yesOrNo)) {
+            	reminder.setFlag(LafReminder.FLAG_NOT_PERFORMED_YES);
+            } else if("No".equals(yesOrNo)) {
+            	//reminder.setFlag(LafReminder.FLAG_NOT_PERFORMED_NO);            	            	
+             }
+        }        
 
-        //mark completed reminders
+        //mark completed reminders (will take prevalence over other marks)
         if(remindersCompleted != null) {
 
 	        for(int ii = 0; ii< reminders.size(); ii++) { 
@@ -627,43 +674,6 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 	            }
 	        }
         }
-        
-        //mark alerted reminders
-        if(remindersAlerted != null) {
-	        for(int ii = 0; ii< reminders.size(); ii++) { 
-	            LafReminder reminder = reminders.get(ii);
-	            for(LafReminder alert : remindersAlerted) {
-	            	if(reminder.getFollowProcedure().equals(alert.getFollowProcedure()) && reminder.getTargetDate().equals(alert.getTargetDate())) {
-	         		   reminder.setFlag(LafReminder.FLAG_ALERTED);            	
-	            	}
-	            }
-	        }
-        }
-        
-        //mark snoozed or scheduled reminders
-        for(int ii = 0; ii< reminders.size(); ii++) { 
-            LafReminder reminder = reminders.get(ii);
-            Date scheduleDate = this.findSnoozeOrScheduleDate(pat, reminder.getFollowProcedure(), reminder.getTargetDate(), "scheduleDate");
-            Date snoozeDate = this.findSnoozeOrScheduleDate(pat, reminder.getFollowProcedure(), reminder.getTargetDate(), "snoozeDate");
-            if(scheduleDate!=null) {
-            	reminder.setFlag(LafReminder.FLAG_SCHEDULED);
-     		    reminder.setResponseDate(scheduleDate);
-            } else if(snoozeDate!=null) {
-            	reminder.setFlag(LafReminder.FLAG_SNOOZED);            	            	
-     		    reminder.setResponseDate(snoozeDate);
-            }
-        } 
-        
-        //mark Not-Performed reminders
-        for(int ii = 0; ii< reminders.size(); ii++) { 
-            LafReminder reminder = reminders.get(ii);
-            String yesOrNo = this.findNotPerformedDecision(pat, reminder.getFollowProcedure(), reminder.getTargetDate(), "notPerformed");
-            if("Yes".equals(yesOrNo)) {
-            	reminder.setFlag(LafReminder.FLAG_NOT_PERFORMED_YES);
-            } else if("No".equals(yesOrNo)) {
-            	//reminder.setFlag(LafReminder.FLAG_NOT_PERFORMED_NO);            	            	
-             }
-        }        
         
         //mark skipped reminders
         for(int ii = 0; ii< reminders.size(); ii++) { 

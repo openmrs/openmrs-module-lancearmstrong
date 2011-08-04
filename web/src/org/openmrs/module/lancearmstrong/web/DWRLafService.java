@@ -38,9 +38,9 @@ public class DWRLafService {
 		LafReminder newReminder = new LafReminder();		
 		newReminder.setPatient(Context.getPatientService().getPatient(patientId));
 		newReminder.setId(null);
-		newReminder.setCompleteDate(completeDate);
-		newReminder.setResponseType(resultType);
-		newReminder.setFollowProcedure(Context.getConceptService().getConceptByName(careType));
+		newReminder.setCompleteDate(completeDate); //!=null if completed, =null otherwise
+		newReminder.setResponseType(resultType); //no use
+		newReminder.setFollowProcedure(Context.getConceptService().getConceptByName(careType)); //careType is String
 		newReminder.setResponseComments(comments);
 		newReminder.setResponseAttributes(docName);
 		newReminder.setResponseDate(new Date());
@@ -55,9 +55,9 @@ public class DWRLafService {
 		LafReminder newReminder = new LafReminder();		
 		newReminder.setPatient(Context.getPatientService().getPatient(patientId));
 		newReminder.setId(null);
-		newReminder.setCompleteDate(completeDate);
-		newReminder.setResponseType(resultType);
-		newReminder.setFollowProcedure(Context.getConceptService().getConcept(careType));
+		newReminder.setCompleteDate(completeDate); //!=null if completed, =null otherwise
+		newReminder.setResponseType(resultType); //no use
+		newReminder.setFollowProcedure(Context.getConceptService().getConcept(careType)); //careType is Integer
 		newReminder.setResponseComments(comments);
 		newReminder.setResponseAttributes(docName);
 		newReminder.setResponseDate(new Date());
@@ -77,8 +77,10 @@ public class DWRLafService {
 			reminder.setPatient(Context.getPatientService().getPatient(patientId));
 			reminder.setId(null);
 			reminder.setFollowProcedure(Context.getConceptService().getConcept(careType));
-			reminder.setTargetDate(targetDate);
+			reminder.setTargetDate(targetDate); //used only for matching the response to the alert, not necessarily the target date matched dynamically
 			reminder.setResponseAttributes("scheduleDate="+Context.getDateFormat().format(scheduleDate));
+			reminder.setResponseDate(new Date());
+			reminder.setResponseUser(Context.getAuthenticatedUser());
 		}
 		LafUtil.getService().getReminderDao().saveLafReminder(reminder);
 	}	
@@ -98,8 +100,10 @@ public class DWRLafService {
 			reminder.setPatient(Context.getPatientService().getPatient(patientId));
 			reminder.setId(null);
 			reminder.setFollowProcedure(Context.getConceptService().getConcept(careType));
-			reminder.setTargetDate(targetDate);
+			reminder.setTargetDate(targetDate); //used only for matching the response to the alert, not necessarily the target date matched dynamically
 			reminder.setResponseAttributes("snoozeDate="+Context.getDateFormat().format(scheduleDate));
+			reminder.setResponseDate(new Date());
+			reminder.setResponseUser(Context.getAuthenticatedUser());
 		}
 		LafUtil.getService().getReminderDao().saveLafReminder(reminder);
 	}
@@ -115,8 +119,10 @@ public class DWRLafService {
 			reminder.setPatient(Context.getPatientService().getPatient(patientId));
 			reminder.setId(null);
 			reminder.setFollowProcedure(Context.getConceptService().getConcept(careType));
-			reminder.setTargetDate(targetDate);
+			reminder.setTargetDate(targetDate); //used only for matching the response to the alert, not necessarily the target date matched dynamically
 			reminder.setResponseAttributes("notPerformed="+yesOrNo);			
+			reminder.setResponseDate(new Date());
+			reminder.setResponseUser(Context.getAuthenticatedUser());
 		}
 		LafUtil.getService().getReminderDao().saveLafReminder(reminder);
 	}

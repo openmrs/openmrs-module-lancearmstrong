@@ -100,11 +100,11 @@ public class LafReminder {
     }
 	
     public Date getResponseDate() {
-    	return LafUtil.clearDate(responseDate);
+    	return responseDate;
     }
 	
     public void setResponseDate(Date responseDate) {
-    	this.responseDate = LafUtil.clearDate(responseDate);
+    	this.responseDate = responseDate;
     }
 	
     public String getResponseType() {
