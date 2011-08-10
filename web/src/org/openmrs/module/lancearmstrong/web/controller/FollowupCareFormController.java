@@ -130,7 +130,7 @@ public class FollowupCareFormController extends SimpleFormController {
                 if( id != null && id >= 0) {
                 	LafUtil.getService().getReminderDao().deleteLafReminder(reminders.get(id));                
                 	log.debug("Reminder deleted: " + reminders.get(id).getFollowProcedure().getName()+"/"+reminders.get(id).getCompleteDate() + "/" + reminders.get(id).getResponseType() + "/" + reminders.get(id).getResponseComments());
-                	request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, reminders.get(id).getFollowProcedure().getName()+"/"+reminders.get(id).getCompleteDate() + " " + reminders.get(id).getResponseType());
+                	request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Entry deleted: " + reminders.get(id).getFollowProcedure().getName());
                 } else {
                 	log.debug("Nothing is deleted. command=" + command);
                 }

@@ -659,16 +659,16 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 	            	if(reminderCompl.getFollowProcedure().equals(reminder.getFollowProcedure())) {
 	            	   if(previousReminder==null && reminderCompl.getCompleteDate().before(reminder.getTargetDate())) {
 	            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
-	            		   //reminder.setResponseDate(reminderCompl.getCompleteDate());
+	            		   reminder.setResponseDate(reminderCompl.getCompleteDate());
 	            	   } else if(nextReminder==null && reminderCompl.getCompleteDate().after(reminder.getTargetDate())) {
 	            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
-	               		   //reminder.setResponseDate(reminderCompl.getCompleteDate());
+	               		   reminder.setResponseDate(reminderCompl.getCompleteDate());
 	            	   } else if(previousReminder!=null && reminderCompl.getCompleteDate().before(reminder.getTargetDate()) && reminderCompl.getCompleteDate().after(findMidDate(previousReminder.getTargetDate(), reminder.getTargetDate()))) {
 	            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
-	               		   //reminder.setResponseDate(reminderCompl.getCompleteDate());
+	               		   reminder.setResponseDate(reminderCompl.getCompleteDate());
 	            	   } else if(nextReminder!=null && reminderCompl.getCompleteDate().after(reminder.getTargetDate())&& reminderCompl.getCompleteDate().before(findMidDate(reminder.getTargetDate(), nextReminder.getTargetDate()))) {
 	            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
-	               		   //reminder.setResponseDate(reminderCompl.getCompleteDate());
+	               		   reminder.setResponseDate(reminderCompl.getCompleteDate());
 	            	   }            		
 	            	}
 	            }

@@ -8,6 +8,11 @@
 	width:74%;
 }
 
+#endOfCalendar-div{
+	float:bottom;
+	width:100%;
+}
+
 #addCareDetailDiv{
 	display:none;
 	margin-top:10px;

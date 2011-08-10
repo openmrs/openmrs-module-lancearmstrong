@@ -220,6 +220,10 @@ Customized plan of care recommendation is not available. Please enter your cance
 		<button id="cancelAddCare" onClick="onAddCare();return false;">Cancel</button>
 	</div>	
 </div>
+<div id="endOfCalendar-div" style="clear:both;">
+<br>
+(*Note: As years pass by, your risk of cancer recurrence will decrease. No further test for recurrence is needed after the end of this calendar.)
+</div>
 </c:otherwise>
 </c:choose>
 <%@ include file="/WEB-INF/template/footerMinimal.jsp" %>
