@@ -129,6 +129,30 @@
 	<mappingFiles>
 		lancearmstrong.hbm.xml
 	</mappingFiles>
-	
+
+	<!-- Global properties -->	
+	<globalProperty>
+		<property>@MODULE_ID@.PatientCommunities.displayorder</property>
+		<defaultValue>4</defaultValue>
+		<description>Display order of PatientCommunities tab</description>
+	</globalProperty>
+
+	<globalProperty>
+		<property>@MODULE_ID@.PatientToxicities.displayorder</property>
+		<defaultValue>3</defaultValue>
+		<description>Display order of PatientToxicities tab</description>
+	</globalProperty>
+
+	<globalProperty>
+		<property>@MODULE_ID@.PatientFollowCare.displayorder</property>
+		<defaultValue>2</defaultValue>
+		<description>Display order of PatientFollowCare tab</description>
+	</globalProperty>
+
+	<globalProperty>
+		<property>@MODULE_ID@.PatientTreatmentSummary.displayorder</property>
+		<defaultValue>1</defaultValue>
+		<description>Display order of PatientTreatmentSummary tab</description>
+	</globalProperty>	
 </module>
 

@@ -28,6 +28,11 @@
 </div>
 
 <c:if test="${foundSummary=='false'}">
+<%--
 	<a href="../module/lancearmstrong/htmlFormEntryForm.form?formId=6&personId=${model.personId}&patientId=${model.patientId}"> Create Treatment Summary</a>
+--%>
+	<iframe id="treatmentSummaryCreationFrame" src ="${pageContext.request.contextPath}/module/lancearmstrong/htmlFormEntryForm.form?formId=6&personId=${model.personId}&patientId=${model.patientId}&mode=EDIT&inTab=true" width="100%" height="1500">
+	  Create Treatment Summary
+	</iframe>
 </c:if>			
 

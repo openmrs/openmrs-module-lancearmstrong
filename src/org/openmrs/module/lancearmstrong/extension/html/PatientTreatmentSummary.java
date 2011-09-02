@@ -16,6 +16,7 @@ package org.openmrs.module.lancearmstrong.extension.html;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openmrs.api.context.Context;
 import org.openmrs.module.Extension;
 import org.openmrs.module.web.extension.PatientDashboardTabExt;;
 
@@ -26,6 +27,16 @@ import org.openmrs.module.web.extension.PatientDashboardTabExt;;
  */
 public class PatientTreatmentSummary extends PatientDashboardTabExt {
 	
+	/**
+	 * default constructor: set display order attribute
+	 */
+	public PatientTreatmentSummary() {
+		super();
+		String order = Context.getAdministrationService().getGlobalProperty("lancearmstrong.PatientTreatmentSummary.displayorder");
+		this.setOrder(Integer.valueOf(order==null? "1": order));
+	}
+
+
 	/**
 	 * @see org.openmrs.module.web.extension.AdministrationSectionExt#getMediaType()
 	 */
