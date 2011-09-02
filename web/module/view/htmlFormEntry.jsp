@@ -171,19 +171,15 @@
 			</c:if>
 			<c:choose>
 				<c:when test="${not empty command.form}">
-					${command.form.name} (${command.form.encounterType.name})
+					${command.form.name}
 				</c:when>
 				<c:otherwise>
 					<c:if test="${not empty command.encounter}">
-						${command.encounter.form.name} (${command.encounter.encounterType.name})
+						${command.encounter.form.name}
 					</c:if>
 				</c:otherwise> 
 			</c:choose>
 			
-			|
-			<c:if test="${not empty command.encounter}">
-				<openmrs:formatDate date="${command.encounter.encounterDatetime}"/> | ${command.encounter.location.name} 
-			</c:if>
 			<c:if test="${empty command.encounter}">
 				<spring:message code="htmlformentry.newForm"/>
 			</c:if>
@@ -213,6 +209,7 @@
 			<input type="hidden" name="encounterId" value="${ command.encounter.encounterId }"/>
 		</c:if>
 		<input type="hidden" name="closeAfterSubmission" value="${param.closeAfterSubmission}"/>
+		<input type="button" class="submitButton" value="Save Changes" onClick="submitHtmlForm()"/><br/>
 </c:if>
 	
 	${command.htmlToDisplay}

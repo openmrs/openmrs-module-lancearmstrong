@@ -125,7 +125,7 @@ Customized plan of care recommendation is not available. Please enter your cance
 	<spring:message code="fix.error"/>
 	<div class="error">
 		<c:forEach items="${errors.allErrors}" var="error">
-			<spring:message code="${error.code}" text="${error.code}"/><br/><!-- ${error} -->
+			<spring:message code="${error.code}" text="${error.code}"/><br/>
 		</c:forEach>
 	</div>
 	<br />
@@ -222,7 +222,7 @@ Customized plan of care recommendation is not available. Please enter your cance
 </div>
 <div id="endOfCalendar-div" style="clear:both;">
 <br>
-(*Note: As years pass by, your risk of cancer recurrence will decrease. No further test for recurrence is needed after the end of this calendar.)
+<spring:message code="lancearmstrong.end.of.calendar"/>
 </div>
 </c:otherwise>
 </c:choose>
