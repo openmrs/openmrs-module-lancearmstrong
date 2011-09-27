@@ -35,6 +35,22 @@
 		}
 	}
 
+	function onAddRecommendedCare(){
+		if ($j('#addRecommendedCareDetailDiv').is(":hidden")) {
+			$j('#addRecommendedCareDetailDiv').slideDown("fast", function(){
+				$j('#addRecommendedCare').toggle();
+				$j('#cancelAddRecommendedCare').toggle();
+				$j('#saveAddRecommendedCare').toggle();
+			});
+		}else{
+			$j('#addRecommendedCareDetailDiv').slideUp("fast", function(){
+				$j('#addRecommendedCare').toggle();
+				$j('#cancelAddRecommendedCare').toggle();
+				$j('#saveAddRecommendedCare').toggle();
+			});
+		}
+	}	
+
 
 	function saveAddedCare(patientId){
 		var completeDate = parseSimpleDate($j('#completeDateNew').val(), '<openmrs:datePattern />');
@@ -56,6 +72,25 @@
 		$j('#followupForm').submit();		
 	}	
 	
+	function saveAddedRecommendedCare(patientId){
+		var recommendedDate = parseSimpleDate($j('#recommendedDateNew').val(), '<openmrs:datePattern />');
+		var careType = $j('#recommendedCareTypeNew').val();
+		var resultType = $j('#recommendedResultTypeNew').val();
+		var comments = $j('#commentsRecommendedNew').val();
+		var refDate = new Date(1900,1,1);
+
+		if(refDate.getTime()-recommendedDate.getTime() > 0) {
+			alert("Recommended date cannot be null or too early!");
+			$j('#recommendedDateNew').focus();
+			return;
+		}
+		DWRLafService.addFollowupCareRecommended(patientId, recommendedDate, careType, resultType, comments);
+
+		onAddRecommendedCare(); 
+
+		$j('#followupForm').submit();		
+	}	
+		
 	function onChange(reminderId) {
 		$j('#saveChanges'+reminderId).removeAttr("disabled");
 	}	
@@ -102,12 +137,19 @@ Customized plan of care recommendation is not available. Please enter your cance
 		    <c:if test="${reminder.flag == null || (reminder.flag != 'SKIPPED' && reminder.flag != 'NOT PERFORMED: YES')}">			         	
 			  <tr>
 				<td>
-					<openmrs:formatDate date="${reminder.targetDate}"/>
+			        <c:if test="${reminder.responseType == 'PHR_PROVIDER'}">			         				   
+						<span style="color: red;">
+							<openmrs:formatDate date="${reminder.targetDate}"/>
+						</span>
+					</c:if>
+			        <c:if test="${reminder.responseType != 'PHR_PROVIDER'}">			         				   
+						<openmrs:formatDate date="${reminder.targetDate}"/>					
+					</c:if>
 			    </td>
 			    <td>
 			        ${reminder.followProcedure.name}
 			        <c:if test="${reminder.flag != null}">			         
-			        	<br/><span style="color: green;">(${reminder.flag}<c:if test="${reminder.responseDate != null}"> ${reminder.responseDateFormated}</c:if>)
+			        	<br/><span style="color: green;">(${reminder.flag}<c:if test="${reminder.responseDate != null && reminder.flag != 'NEXT DUE'}"> ${reminder.responseDateFormated}</c:if>)
 			           </span>
 			        </c:if>
 			    </td>			    
@@ -221,9 +263,51 @@ Customized plan of care recommendation is not available. Please enter your cance
 	</div>	
 </div>
 <div id="endOfCalendar-div" style="clear:both;">
-<br>
+<br/>
 <spring:message code="lancearmstrong.end.of.calendar"/>
+<br/>
 </div>
+<personalhr:hasPrivilege privilege="Add Recommended Care">
+	<div class="sub_title">
+		<spring:message code="lancearmstrong.provider.recommended.care"/>
+	</div>
+
+	<div id="addRecommendedCareDetailDiv">
+		<table border="1">
+	   <c:if test="${patient.remindersCompleted == null}">
+		  <thead>
+			  <tr>
+			    <th>Date Recommended</th>
+			    <th>Test Recommended</th>
+			    <th>Comments</th>
+			  </tr>
+		  </thead>
+		</c:if>
+		<tbody>
+		  	<tr>
+				<td>
+					 <input type="text" name="recommendedDateNew" id="recommendedDateNew" onClick="showCalendar(this, 100)" />
+			    </td>
+			    <td>
+					<select name="recommendedCareTypeNew" id="recommendedCareTypeNew">
+						<c:forEach items="${patient.careTypes}" var="careType">
+							<option value="${careType}" label="${careType}">${careType}</option>
+						</c:forEach>
+					</select>
+		    	</td>			    
+			    <td>
+				    <input type="text" name="commentsRecommendedNew" id="commentsRecommendedNew" value="${status.value}"/>
+			    </td>
+			</tr>
+		  </tbody> 
+		</table>
+	</div>
+	<div id="addRecommendedCareDiv">
+		<button id="addRecommendedCare" onClick="onAddRecommendedCare();return false;">Add Recommended Test</button>
+		<button id="saveAddRecommendedCare" onClick="saveAddedRecommendedCare(${patient.patient.patientId});return false;">Save</button>
+		<button id="cancelAddRecommendedCare" onClick="onAddRecommendedCare();return false;">Cancel</button>
+	</div>		
+</personalhr:hasPrivilege>
 </c:otherwise>
 </c:choose>
 <%@ include file="/WEB-INF/template/footerMinimal.jsp" %>

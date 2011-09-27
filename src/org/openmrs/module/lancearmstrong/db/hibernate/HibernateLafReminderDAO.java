@@ -151,4 +151,22 @@ public class HibernateLafReminderDAO implements LafReminderDAO {
 	    return cal.getTime();
     }
 
+	/**
+     * @see org.openmrs.module.lancearmstrong.db.LafReminderDAO#getLafRemindersByProvider(org.openmrs.Patient)
+     */
+    @Override
+    public List<LafReminder> getLafRemindersByProvider(Patient pat) {
+        Criteria crit = sessionFactory.getCurrentSession().createCriteria(LafReminder.class);
+        crit.add(Restrictions.eq("patient", pat));
+        crit.add(Restrictions.isNull("completeDate"));
+        crit.add(Restrictions.isNotNull("targetDate"));
+        crit.add(Restrictions.eq("responseType", "PHR_PROVIDER"));
+        crit.addOrder(Order.asc("targetDate"));
+        List<LafReminder> list = (List<LafReminder>) crit.list();
+        if (list.size() >= 1)
+            return list;
+        else
+            return null;
+    }
+
 }

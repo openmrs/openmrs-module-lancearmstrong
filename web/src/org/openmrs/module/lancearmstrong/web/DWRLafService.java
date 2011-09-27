@@ -30,8 +30,9 @@ import org.openmrs.module.lancearmstrong.LafUtil;
  *
  */
 public class DWRLafService {
+	public static final String RESPONSE_TYPE_PROVIDER="PHR_PROVIDER";  
     protected final Log log = LogFactory.getLog(getClass());
-    
+     
 	public void addFollowupCareCompleted(Integer patientId, Date completeDate, String careType, String docName, String resultType, String comments) {
 		log.debug("Calling DWRLafService.addFollowupCareCompleted...patientId=" + patientId + ",completeDate=" + completeDate + 
 			       ",careType=" + careType);
@@ -48,6 +49,24 @@ public class DWRLafService {
 		
 		LafUtil.getService().getReminderDao().saveLafReminder(newReminder);
 	}
+	
+	public void addFollowupCareRecommended(Integer patientId, Date recommendedDate, String careType, String resultType, String comments) {
+		log.debug("Calling DWRLafService.addFollowupCareCompleted...patientId=" + patientId + ",reommendedDate=" + recommendedDate + 
+			       ",careType=" + careType);
+		LafReminder newReminder = new LafReminder();		
+		newReminder.setPatient(Context.getPatientService().getPatient(patientId));
+		newReminder.setId(null);
+		newReminder.setTargetDate(recommendedDate); //!=null if completed, =null otherwise
+		newReminder.setResponseType(RESPONSE_TYPE_PROVIDER); //!=null if this is a care recommended by patient's personal provider
+		newReminder.setFollowProcedure(Context.getConceptService().getConceptByName(careType)); //careType is String
+		newReminder.setResponseComments(comments);
+		newReminder.setResponseAttributes("provider_user_id="+Context.getAuthenticatedUser().getUserId());
+		newReminder.setResponseDate(new Date());
+		newReminder.setResponseUser(Context.getAuthenticatedUser());
+
+		LafUtil.getService().getReminderDao().saveLafReminder(newReminder);
+	}
+	
 	
 	public void followupCareCompleted(Integer patientId, Date completeDate, Integer careType, String docName, String resultType, String comments) {
 		log.debug("Calling DWRLafService.followupCareCompleted...patientId=" + patientId + ",completeDate=" + completeDate + 

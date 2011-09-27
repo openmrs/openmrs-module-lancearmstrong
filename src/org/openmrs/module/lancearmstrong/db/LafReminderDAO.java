@@ -82,4 +82,12 @@ public interface LafReminderDAO {
      */
     LafReminder getLafReminder(Patient patient, Concept careType, Date targetDate);
 
+	/**
+     * Auto generated method comment
+     * 
+     * @param pat
+     * @return
+     */
+    List<LafReminder> getLafRemindersByProvider(Patient pat);
+
 }

@@ -36,4 +36,21 @@
 	margin-bottom:7px;	
 }
 
+#addRecommendedCareDetailDiv{
+	display:none;
+	margin-top:10px;
+}
+
+#addRecommendedCareDiv{
+	margin-top:10px;
+}
+
+#cancelAddRecommendedCare{
+	display:none;
+}
+
+#saveAddRecommendedCare{
+	display:none;
+}
+
 

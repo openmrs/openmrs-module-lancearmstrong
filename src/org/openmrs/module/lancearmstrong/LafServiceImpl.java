@@ -67,6 +67,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     private final static String  SURGERY_ENCOUNTER = "CANCER TREATMENT - SURGERY";
     
     private final static int ALERT_DAYS = 60; 
+    private final static int MATCH_DAYS = 7; 
 	
     //ANY TREATMENT TYPE=0, CHEMOTHERAPY=1, RADIOLOGY=2, SURGERY=3
     //6225-6248: Concept ID's of side effects
@@ -139,7 +140,12 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     @Override
     public List<LafReminder> getRemindersCompleted(Patient pat) {    	
 	    return reminderDao.getLafRemindersCompleted(pat);
+    }  
+    
+    private List<LafReminder> getRemindersByProvider(Patient pat) {    	
+	    return reminderDao.getLafRemindersByProvider(pat);
     }    
+    
     
 	/**
      * @see org.openmrs.module.lancearmstrong.LafService#getReminders(org.openmrs.Patient)
@@ -281,11 +287,168 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 		return latestEncounter;
 		
 	}
-	 
+
 	/*
-	 * find specific reminders for alerting purpose for a given patient at a given date based on 30-day alerting rule
+	 * Find specific reminders for alerting purpose for a given patient at a given date based on ALERT_DAYS (e.g. 60 days) alerting rule
+	 * 
+	 * Alert display logic: 
+     * 
+     * find reminders by guideline -> find and exclude reminders completed/matched, snoozed, scheduled, or not performed -> 
+     * find reminders by providers -> exclude reminders completed/matched, snoozed, scheduled, or not performed for provider-recommended reminders ->
+     * add provider recommended reminder alerts (overriding corresponding guidline reminder alerts to keep just one alert of the same kind)  
+     *  
+     * Note: 1. one completed test can match up to two reminders, one from guideline (middle-date rule), the other from providers (7-day-proximity rule)
+     *       2. alert date is based on 60-day rule for both types of reminders (by guideline, and by providers)
+     *       
 	 */
     private List<LafReminder> findReminders(Patient pat, Date indexDate) {
+    	//find all follow-up care guidelines
+    	List<LafGuideline> guidelines = findGuidelines(pat);
+    	
+    	//find all reminders sorted by target date
+    	List<LafReminder> reminders = findAllReminders(pat);
+    	
+    	//find all completed reminders
+    	List<LafReminder> remindersCompleted = getRemindersCompleted(pat);    	    
+
+        //mark completed reminders (will take prevalence over other marks)
+        if(remindersCompleted != null) {
+	        for(int ii = 0; ii< reminders.size(); ii++) { 
+	            LafReminder reminder = reminders.get(ii);
+	            LafReminder nextReminder = null;
+	            LafReminder previousReminder = null;
+	            
+	            for(int jj=ii+1; jj<reminders.size(); jj++) {  
+	            	nextReminder = reminders.get(jj);
+	            	if(nextReminder.getFollowProcedure().equals(reminder.getFollowProcedure())) {
+	            		break;           		
+	            	}
+	            }
+	            
+	            for(int jj=0; jj<ii; jj++) {  
+	            	previousReminder = reminders.get(jj);
+	            	if(previousReminder.getFollowProcedure().equals(reminder.getFollowProcedure())) {
+	            		break;           		
+	            	}
+	            }            
+	            
+	            for(LafReminder reminderCompl : remindersCompleted) {
+	            	if(reminderCompl.getFollowProcedure().equals(reminder.getFollowProcedure())) {
+	            	   if(previousReminder==null && reminderCompl.getCompleteDate().before(reminder.getTargetDate())) {
+	            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
+	            		   reminder.setResponseDate(reminderCompl.getCompleteDate());
+	            	   } else if(nextReminder==null && reminderCompl.getCompleteDate().after(reminder.getTargetDate())) {
+	            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
+	               		   reminder.setResponseDate(reminderCompl.getCompleteDate());
+	            	   } else if(previousReminder!=null && reminderCompl.getCompleteDate().before(reminder.getTargetDate()) && reminderCompl.getCompleteDate().after(findMidDate(previousReminder.getTargetDate(), reminder.getTargetDate()))) {
+	            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
+	               		   reminder.setResponseDate(reminderCompl.getCompleteDate());
+	            	   } else if(nextReminder!=null && reminderCompl.getCompleteDate().after(reminder.getTargetDate())&& reminderCompl.getCompleteDate().before(findMidDate(reminder.getTargetDate(), nextReminder.getTargetDate()))) {
+	            		   reminder.setFlag(LafReminder.FLAG_COMPLETED);
+	               		   reminder.setResponseDate(reminderCompl.getCompleteDate());
+	            	   }            		
+	            	}
+	            }
+	        }
+        }
+    	    	
+    	//compare with indexDate to determine reminder/alert for each guideline
+    	List<LafReminder> newReminders = new ArrayList<LafReminder>();    
+    	if(guidelines != null) {
+    		log.debug("Number of guidelines found = " + guidelines.size());
+	    	for(LafGuideline guideline : guidelines) {
+	    		Date targetDate = findNextTargetDate(reminders, guideline.getFollowProcedure()); //completed reminders have been excluded from the next target date calculation
+	    		
+	    		Date alertDate = findAlertDate(pat, guideline.getFollowProcedure(), targetDate); //based on default offset of 60 days and user response to earlier alert
+	    		log.debug("guideline="+guideline.getFollowProcedure() + ", years = " + guideline.getFollowYears());
+	    		log.debug("targetDate=" + targetDate);
+	    		log.debug("alertDate=" + alertDate);
+	    		    		    		
+	    		if(alertDate!= null && indexDate.after(alertDate)) {
+	    			log.debug("Alert is found for patient: " + pat + ", guideline=" + guideline + ", targetDate=" + targetDate + ", alertStartDate=" + alertDate);
+
+	    			//find Not Performed flag for this reminder
+	    			String notPerformedFlag = findAttribute(pat, guideline.getFollowProcedure(), targetDate, "notPerformed");
+	    			if(notPerformedFlag != null && "Yes".equals(notPerformedFlag)) {
+	    				continue; //no need to alert
+	    			}
+	    			
+	    			//find snooze date or schedule date for this reminder
+	    			Date ssDate = findSnoozeOrScheduleDate(pat, guideline.getFollowProcedure(), targetDate);
+	    			
+	    			if(ssDate == null || ssDate.before(new Date())) {
+			    		LafReminder reminder = new LafReminder();
+			    		reminder.setPatient(pat);
+			    		reminder.setFollowProcedure(guideline.getFollowProcedure());
+			    		reminder.setTargetDate(targetDate);	    		
+			    		newReminders.add(reminder);
+	    			}	    				    			
+	    		}
+	    	}   	
+    	} else {
+    		log.debug("No guidelines are found!");
+    	}
+    	
+    	//check follow-up care recommended by patient's personal provider
+       	List<LafReminder> remindersByProvider = getRemindersByProvider(pat);
+       	
+       	
+       	if(remindersByProvider!=null && !remindersByProvider.isEmpty()) {
+	    	for(LafReminder reminder : remindersByProvider) {       		
+	    		LafReminder lastCompleted = findLastCompleted(remindersCompleted, reminder.getFollowProcedure());
+	    		
+	    		Date targetDate = reminder.getTargetDate();
+	    		//exclude completed reminders
+	    		if( lastCompleted!= null && matchCompletedDate(targetDate, lastCompleted.getCompleteDate())) {
+	    			continue;
+	    		}
+	    		
+	    		Date alertDate = findAlertDate(pat, reminder.getFollowProcedure(), targetDate); //based on default offset of 60 days and user response to earlier alert
+	    		    		    		
+	    		if(alertDate!= null && indexDate.after(alertDate)) {
+	    			//find Not Performed flag for this reminder
+	    			String notPerformedFlag = findAttribute(pat, reminder.getFollowProcedure(), targetDate, "notPerformed");
+	    			if(notPerformedFlag != null && "Yes".equals(notPerformedFlag)) {
+	    				continue; //no need to alert
+	    			}
+	    			
+	    			//find snooze date or schedule date for this reminder
+	    			Date ssDate = findSnoozeOrScheduleDate(pat, reminder.getFollowProcedure(), targetDate);
+	    			
+	    			if(ssDate == null || ssDate.before(new Date())) {
+	    				for(LafReminder rem : newReminders) {
+	    					if(rem.getFollowProcedure().equals(reminder.getFollowProcedure()) && !"PHR_PROVIDER".equals(rem.getResponseType())) {
+	    						newReminders.remove(rem); //Only show one reminder of the same kind at a given date
+	    						break;
+	    					}
+	    				}
+			    		newReminders.add(reminder);
+	    			}	    				    			
+	    		} 
+	    	}
+       	}
+    	
+
+    	log.debug("Number of alerts found = " + (newReminders==null? 0: newReminders.size()) + " on index date " + indexDate);
+
+    	return newReminders;    	
+    }    
+	
+
+	/*
+	 * Find specific reminders for alerting purpose for a given patient at a given date based on ALERT_DAYS (e.g. 60 days) alerting rule
+	 * 
+	 * Alert display logic: 
+     * 
+     * find reminders by guideline -> find and exclude reminders completed/matched, snoozed, scheduled, or not performed -> 
+     * find reminders by providers -> exclude reminders completed/matched, snoozed, scheduled, or not performed for provider-recommended reminders ->
+     * add provider recommended reminder alerts (overriding corresponding guidline reminder alerts to keep just one alert of the same kind)  
+     *  
+     * Note: 1. one completed test can match up to two reminders, one from guideline (middle-date rule), the other from providers (7-day-proximity rule)
+     *       2. alert date is based on 60-day rule for both types of reminders (by guideline, and by providers)
+     *       
+	 */
+    private List<LafReminder> findRemindersOld(Patient pat, Date indexDate) {
     	//find surgery date
     	Date surgDate = findLatestSurgeryDate(pat);
     	
@@ -304,7 +467,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     		log.debug("Number of guidelines found = " + guidelines.size());
 	    	for(LafGuideline guideline : guidelines) {
 	    		LafReminder lastCompleted = findLastCompleted(remindersCompleted, guideline.getFollowProcedure());
-	    		Date targetDate = findNextTargetDate(surgDate, radType, guideline.getFollowYears(), lastCompleted);
+	    		Date targetDate = findNextTargetDate(surgDate, radType, guideline.getFollowYears(), lastCompleted); //completed reminders have been excluded from the next target date calculation
 	    		Date alertDate = findAlertDate(pat, guideline.getFollowProcedure(), targetDate); //based on default offset of 60 days and user response to earlier alert
 	    		log.debug("guideline="+guideline.getFollowProcedure() + ", years = " + guideline.getFollowYears());
 	    		log.debug("lastCompleted=" + lastCompleted);
@@ -335,12 +498,76 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     	} else {
     		log.debug("No guidelines are found!");
     	}
+    	
+    	//check follow-up care recommended by patient's personal provider
+       	List<LafReminder> remindersByProvider = getRemindersByProvider(pat);
+       	if(remindersByProvider!=null && !remindersByProvider.isEmpty()) {
+	    	for(LafReminder reminder : remindersByProvider) {       		
+	    		LafReminder lastCompleted = findLastCompleted(remindersCompleted, reminder.getFollowProcedure());
+	    		
+	    		Date targetDate = reminder.getTargetDate();
+	    		//exclude completed reminders
+	    		if( lastCompleted!= null && matchCompletedDate(targetDate, lastCompleted.getCompleteDate())) {
+	    			continue;
+	    		}
+	    		
+	    		Date alertDate = findAlertDate(pat, reminder.getFollowProcedure(), targetDate); //based on default offset of 60 days and user response to earlier alert
+	    		    		    		
+	    		if(alertDate!= null && indexDate.after(alertDate)) {
+	    			//find Not Performed flag for this reminder
+	    			String notPerformedFlag = findAttribute(pat, reminder.getFollowProcedure(), targetDate, "notPerformed");
+	    			if(notPerformedFlag != null && "Yes".equals(notPerformedFlag)) {
+	    				continue; //no need to alert
+	    			}
+	    			
+	    			//find snooze date or schedule date for this reminder
+	    			Date ssDate = findSnoozeOrScheduleDate(pat, reminder.getFollowProcedure(), targetDate);
+	    			
+	    			if(ssDate == null || ssDate.before(new Date())) {
+	    				for(LafReminder rem : newReminders) {
+	    					if(rem.getFollowProcedure().equals(reminder.getFollowProcedure()) && !"PHR_PROVIDER".equals(rem.getResponseType())) {
+	    						newReminders.remove(rem); //Only show one reminder of the same kind at a given date
+	    						break;
+	    					}
+	    				}
+			    		newReminders.add(reminder);
+	    			}	    				    			
+	    		} 
+	    	}
+       	}
+    	
 
     	log.debug("Number of alerts found = " + (newReminders==null? 0: newReminders.size()) + " on index date " + indexDate);
 
     	return newReminders;    	
     }    
     
+	/**
+     * Match a target date with a completed date based on 7-day-proximity rule
+     * 
+     * @param targetDate
+     * @param lastCompleted
+     * @return
+     */
+    private boolean matchCompletedDate(Date targetDate, Date lastCompleted) {
+	    // TODO Auto-generated method stub
+    	Calendar calTarget1 = Calendar.getInstance();
+    	calTarget1.setTime(targetDate);
+    	calTarget1.add(Calendar.DATE, MATCH_DAYS);
+    	Calendar calTarget2 = Calendar.getInstance();
+    	calTarget2.setTime(targetDate);
+    	calTarget2.add(Calendar.DATE, -MATCH_DAYS);
+    	
+    	Calendar calCompl = Calendar.getInstance();
+    	calCompl.setTime(lastCompleted);
+    	
+    	if(calCompl.before(calTarget1) && calCompl.after(calTarget2)) {
+    		return true;
+    	}    	    	
+	    return false;
+    }
+
+
 	/**
      * Auto generated method comment
      * 
@@ -492,7 +719,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     }
 
 	/**
-     * Auto generated method comment
+     * Find guidelines for a given patient
      * 
      * @param pat
      */
@@ -513,76 +740,20 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     }
 
 	/**
-     * Find all reminders/"recommended follow-up care dates" for a given patient based solely on guideline
+     * Find flagged reminders for a given patient for Calendar display
+     * (flagged as Completed, Snoozed, Scheduled, Not Performed, or Skipped)
+     * 
+     * Calendar display logic: 
+     * 
+     * find reminders by guideline -> find and add reminders by providers -> sort reminders by date -> 
+     * find and mark alerted reminders -> find and mark scheduled/snoozed reminders -> 
+     * find and mark not performed reminders -> find, match and mark completed reminders (overriding) ->
+     * mark skipped reminders (remaining)  
      * 
      * @param pat
      */
     private List<LafReminder>  findReminders(Patient pat) {
-    	//find cancer treatment summary encounter
-    	/*
-    	List<Encounter> encs = Context.getEncounterService().getEncountersByPatient(pat);    	    
-    	Integer encId = null;
-    	Date encDate = null;
-    	for(Encounter enc : encs) {    		
-    		if(!enc.isVoided() && CANCER_TREATMENT_SUMMARY_ENCOUNTER.equals(enc.getEncounterType().getName())) {
-    			if((encId == null || enc.getEncounterDatetime().after(encDate))) {
-    				encId = enc.getId();
-    				encDate = enc.getEncounterDatetime();
-    				enc.getObs();
-    			}   			
-    		}
-    	}
-    	*/
-    	
-	    //find surgery date
-    	Concept surgeryDateConcept = Context.getConceptService().getConcept(SURGERY_DATE);
-    	Obs surgeryDate = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, surgeryDateConcept));
-    	Date surgDate = surgeryDate==null? null : surgeryDate.getValueDatetime();
-    	if(surgDate == null) {
-    		log.warn("No surgery is found for this patient: " + pat);
-    		return null;
-    	}
-    	
-    	//find rediation type
-    	Concept radiationTypeConcept = Context.getConceptService().getConcept(RADIATION_TYPE);
-    	Obs radiationType = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, radiationTypeConcept));
-    	Concept radType = radiationType==null? null : radiationType.getValueCoded();
-    	
-    	//find cancer type
-    	Concept cancerTypeConcept = Context.getConceptService().getConcept(CANCER_TYPE);
-    	Obs cancerType = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, cancerTypeConcept));
-    	Concept type = cancerType==null? null : cancerType.getValueCoded();
-    	//find cancer stage
-    	Concept cancerStageConcept = Context.getConceptService().getConcept(CANCER_STAGE);
-    	Obs cancerStage = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, cancerStageConcept));
-    	Concept stage = cancerStage==null? null : cancerStage.getValueCoded();
-        	
-    	//find follow-up years
-    	List<LafGuideline> guidelines = guidelineDao.getLafGuideline(type, stage);
-    	
-    	log.debug("Get guidelins: type=" + type + ", stage=" + stage + ", guidelines=" + guidelines);
-    	//create reminder entries
-    	List<LafReminder> reminders = new ArrayList<LafReminder>();
-    	if(guidelines != null) {
-	    	for(LafGuideline guideline : guidelines) {
-	    		Date[] dates = findTargetDates(surgDate, radType, guideline.getFollowYears());
-	    		
-	    		for(Date dt: dates) {
-		    		LafReminder reminder = new LafReminder();
-		    		reminder.setPatient(pat);
-		    		reminder.setFollowProcedure(guideline.getFollowProcedure());
-		    		reminder.setTargetDate(dt);
-		    	    //update cancer_patient_reminder table
-		        	//reminderDao.saveLafReminder(reminder);
-		        	reminders.add(reminder);
-	    		}
-	    	}   	
-    	} else {
-    		log.error("Guideline is not found for cancer type:" + type + " and cancer stage: "+ stage);
-    	}
-    	
-    	//sort guidelines by target date
-        Collections.sort(reminders, LafReminder.getDateComparator());
+    	List<LafReminder> reminders = findAllReminders(pat);
     	
         //***********************************************
         //mark each reminder as either completed, missed, scheduled, snoozed, near-future or far-future
@@ -685,6 +856,91 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
         
     	return reminders;
      }
+
+    /**
+     * 
+     * Find all reminders including those by guideline and those by patient doctors
+     * 
+     * find reminders by guideline -> find and add reminders by providers -> sort reminders by date 
+     * 
+     * @param pat given patient
+     * @return all reminders sorted by target date
+     */
+    private List<LafReminder>  findAllReminders(Patient pat) {
+    	//find cancer treatment summary encounter
+    	/*
+    	List<Encounter> encs = Context.getEncounterService().getEncountersByPatient(pat);    	    
+    	Integer encId = null;
+    	Date encDate = null;
+    	for(Encounter enc : encs) {    		
+    		if(!enc.isVoided() && CANCER_TREATMENT_SUMMARY_ENCOUNTER.equals(enc.getEncounterType().getName())) {
+    			if((encId == null || enc.getEncounterDatetime().after(encDate))) {
+    				encId = enc.getId();
+    				encDate = enc.getEncounterDatetime();
+    				enc.getObs();
+    			}   			
+    		}
+    	}
+    	*/
+    	
+	    //find surgery date
+    	Concept surgeryDateConcept = Context.getConceptService().getConcept(SURGERY_DATE);
+    	Obs surgeryDate = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, surgeryDateConcept));
+    	Date surgDate = surgeryDate==null? null : surgeryDate.getValueDatetime();
+    	if(surgDate == null) {
+    		log.warn("No surgery is found for this patient: " + pat);
+    		return null;
+    	}
+    	
+    	//find rediation type
+    	Concept radiationTypeConcept = Context.getConceptService().getConcept(RADIATION_TYPE);
+    	Obs radiationType = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, radiationTypeConcept));
+    	Concept radType = radiationType==null? null : radiationType.getValueCoded();
+    	
+    	//find cancer type
+    	Concept cancerTypeConcept = Context.getConceptService().getConcept(CANCER_TYPE);
+    	Obs cancerType = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, cancerTypeConcept));
+    	Concept type = cancerType==null? null : cancerType.getValueCoded();
+    	//find cancer stage
+    	Concept cancerStageConcept = Context.getConceptService().getConcept(CANCER_STAGE);
+    	Obs cancerStage = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, cancerStageConcept));
+    	Concept stage = cancerStage==null? null : cancerStage.getValueCoded();
+        	
+    	//find follow-up years
+    	List<LafGuideline> guidelines = guidelineDao.getLafGuideline(type, stage);
+    	
+    	log.debug("Get guidelins: type=" + type + ", stage=" + stage + ", guidelines=" + guidelines);
+    	//create reminder entries
+    	List<LafReminder> reminders = new ArrayList<LafReminder>();
+    	if(guidelines != null) {
+	    	for(LafGuideline guideline : guidelines) {
+	    		Date[] dates = findTargetDates(surgDate, radType, guideline.getFollowYears());
+	    		
+	    		for(Date dt: dates) {
+		    		LafReminder reminder = new LafReminder();
+		    		reminder.setPatient(pat);
+		    		reminder.setFollowProcedure(guideline.getFollowProcedure());
+		    		reminder.setTargetDate(dt);
+		    	    //update cancer_patient_reminder table
+		        	//reminderDao.saveLafReminder(reminder);
+		        	reminders.add(reminder);
+	    		}
+	    	}   	
+    	} else {
+    		log.error("Guideline is not found for cancer type:" + type + " and cancer stage: "+ stage);
+    	}
+    	
+    	//add follow-up care recommended by patient's personal provider
+       	List<LafReminder> remindersByProvider = getRemindersByProvider(pat);
+       	if(remindersByProvider!=null && !remindersByProvider.isEmpty()) {
+       		reminders.addAll(remindersByProvider);
+       	}
+    	
+    	//sort guidelines by target date
+        Collections.sort(reminders, LafReminder.getDateComparator());    	        
+    	return reminders;
+     }
+    
     
 	/**
      * Find target dates based solely on follow-up care frequency rule
@@ -774,6 +1030,49 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 	    // TODO Auto-generated method stub
         return nextTargetDate;
     }
+    
+	/**
+     * Auto generated method comment
+     * 
+     * @param reminders
+     * @param followProcedure
+     * @return
+     */
+    private Date findNextTargetDate(List<LafReminder> reminders, Concept followProcedure) {
+     	
+     	Date today = new Date();
+    	    	 
+    	Date nextTargetDate = null;
+    	LafReminder refReminder1 = null;
+    	LafReminder refReminder2 = null;
+    	for(LafReminder reminder : reminders) {
+    		if(!followProcedure.equals(reminder.getFollowProcedure())) {
+    			continue;
+    		}    		
+    		
+    		refReminder2 = reminder;
+    		
+    		if(refReminder1 != null) {
+	    		if(today.before(refReminder2.getTargetDate())) {
+	    			Date refDate12 = findMidDate(refReminder1.getTargetDate(), refReminder2.getTargetDate());
+	    			
+	    			if(today.before(refDate12) && !LafReminder.FLAG_COMPLETED.equals(refReminder1.getFlag())) {
+	    				//nextTargetDate = findDate(startDate, split2[ii]);
+	    				nextTargetDate = refReminder1.getTargetDate();
+	    			} else if (!LafReminder.FLAG_COMPLETED.equals(refReminder2.getFlag())){
+	    				nextTargetDate = refReminder2.getTargetDate();;
+	    			}
+	    			
+	    			break;
+	    		}
+    		}
+    		
+    		refReminder1 = refReminder2;    		
+    	}
+	    // TODO Auto-generated method stub
+        return nextTargetDate;
+    }
+    
     
 	/**
      * Find a match to a recommended date for a given completion date or for today's date
