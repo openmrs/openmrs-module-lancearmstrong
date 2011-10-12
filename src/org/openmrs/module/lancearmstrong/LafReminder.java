@@ -23,18 +23,48 @@ import org.openmrs.api.context.Context;
 
 
 /**
- *
+ * Represent a single follow up care reminder for a patient with or without various indicators
+ * 
+ *  @author hxiao
  */
 public class LafReminder {
+	/**
+	 * Response type
+	 */
 	public static final String RESPONSE_COMPLETED = "Completed";
+	/**
+	 * Response type
+	 */
 	public static final String RESPONSE_SKIPPED = "Skipped";
+	/**
+	 * Various flags used for calendar display
+	 */
 	public static final String FLAG_NOT_PERFORMED_YES = "NOT PERFORMED: YES"; //removed its display from follow-up care calendar
+	/**
+	 * Various flags used for calendar display
+	 */
 	public static final String FLAG_NOT_PERFORMED_NO = "NOT PERFORMED: NO";
+	/**
+	 * Various flags used for calendar display
+	 */
 	public static String FLAG_COMPLETED = "COMPLETED";
+	/**
+	 * Various flags used for calendar display
+	 */
 	public static String FLAG_SCHEDULED = "SCHEDULED";
+	/**
+	 * Various flags used for calendar display
+	 */
 	public static String FLAG_SNOOZED = "SNOOZED"; //removed its entries from database
+	/**
+	 * Various flags used for calendar display
+	 */
 	public static String FLAG_ALERTED = "NEXT DUE";
+	/**
+	 * Various flags used for calendar display
+	 */
 	public static String FLAG_SKIPPED = "SKIPPED"; //removed its display from follow-up care calendar
+
 	private Integer id;	
 	private Patient patient;
 	private Concept followProcedure;
@@ -48,16 +78,26 @@ public class LafReminder {
 	private Date CompleteDate;
 	private String doctorName; 
 	private String flag;
-	private String responseDateFormated;
     
+    /**
+     * Get response date in a given format
+     * 
+     * @return formated response date
+     */
     public String getResponseDateFormated() {
     	return (responseDate==null? null : Context.getDateFormat().format(responseDate));
     }
 
-	
-    public void setResponseDateFormated(String responseDateFormated) {
-    	this.responseDateFormated = responseDateFormated;
+    /**
+     * Get target date in a given format
+     * 
+     * @return formatted target date
+     */
+    public String getTargetDateFormated() {
+    	return (targetDate==null? null : Context.getDateFormat().format(targetDate));
     }
+    
+	
 
 	/**
      * Sort by start_date
@@ -75,6 +115,11 @@ public class LafReminder {
         };
     }
     
+    /**
+     * get reminder id
+     * 
+     * @return id
+     */
     public Integer getId() {
     	return id;
     }

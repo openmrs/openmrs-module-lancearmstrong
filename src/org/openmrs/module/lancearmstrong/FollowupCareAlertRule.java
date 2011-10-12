@@ -13,8 +13,6 @@
  */
 package org.openmrs.module.lancearmstrong;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,14 +29,15 @@ import org.openmrs.logic.result.Result.Datatype;
 import org.openmrs.logic.rule.RuleParameterInfo;
 
 /**
- * Calculates a person's age in years based from their date of birth to the index date
+ * Implementing follow up care alerting rule
+ * 
+ * @author hxiao
  */
 public class FollowupCareAlertRule implements Rule {
     protected final Log log = LogFactory.getLog(getClass());
 	
 	/**
-	 * @see org.openmrs.logic.Rule#eval(org.openmrs.logic.LogicContext, org.openmrs.Patient,
-	 *      java.util.Map)
+	 * @see org.openmrs.logic.Rule#eval(org.openmrs.logic.LogicContext, java.lang.Integer, java.util.Map)
 	 */
 	@Override
 	public Result eval(LogicContext context, Integer patientId, Map<String, Object> parameters) throws LogicException {

@@ -90,6 +90,7 @@
 				<param name="class" value="org.openmrs.module.lancearmstrong.web.DWRLafService"/>
 				<include method="addFollowupCareCompleted"/>
 				<include method="addFollowupCareRecommended"/>
+				<include method="deleteFollowupCareRecommended"/>
 				<include method="getLafPatient"/>
 				<include method="followupCareCompleted"/>
 				<include method="followupCareScheduled"/>

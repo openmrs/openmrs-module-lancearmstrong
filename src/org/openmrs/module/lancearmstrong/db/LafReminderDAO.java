@@ -22,72 +22,82 @@ import org.openmrs.module.lancearmstrong.LafReminder;
 
 
 /**
- *
+ * Data Access Object for cancer_reminder table
+ * 
+ * @author hxiao
  */
 public interface LafReminderDAO {
 
 	/**
-     * Auto generated method comment
+     * Get a reminder object
      * 
-     * @param id
-     * @return
+     * @param id id of reminder
+     * @return reminder object
      */
     LafReminder getLafReminder(Integer id);
 
 	/**
-     * Auto generated method comment
+     * Save reminder object to database
      * 
-     * @param reminder
-     * @return
+     * @param reminder reminder object
      */
     LafReminder saveLafReminder(LafReminder reminder);
 
 	/**
-     * Auto generated method comment
+     * delete a reminder
      * 
-     * @param reminder
+     * @param reminder reminder object
      */
     void deleteLafReminder(LafReminder reminder);
 
 	/**
-     * Auto generated method comment
+     * Get all reminder entries
      * 
-     * @return
+     * @return a list of reminder objects
      */
     List<LafReminder> getAllLafReminders();
 
 	/**
-     * Auto generated method comment
+     * Get all reminders of a given patient
      * 
-     * @param pat
-     * @return
+     * @param pat patient object
+     * @return a list of reminders for that patient
      */
     List<LafReminder> getLafReminders(Patient pat);
 
 	/**
-     * Auto generated method comment
+     * Get completed tests for a given patient
      * 
-     * @param pat
-     * @return
+     * @param pat a given patient
+     * @return completed tests of the given patient
      */
     List<LafReminder> getLafRemindersCompleted(Patient pat);
 
 	/**
-     * Auto generated method comment
+     * Get reminder object for a given patient, care type and target date 
      * 
-     * @param patient
-     * @param careType
-     * @param targetDate
-     * @return
+     * @param patient patient object
+     * @param careType type of care
+     * @param targetDate target date
+     * @return reminder object
      */
     LafReminder getLafReminder(Patient patient, Concept careType, Date targetDate);
 
 	/**
-     * Auto generated method comment
+     * Get reminders recommended by patient's providers
      * 
-     * @param pat
-     * @return
+     * @param pat a given patient
+     * @return list of reminders/follow up care recommended
      */
     List<LafReminder> getLafRemindersByProvider(Patient pat);
+
+	/**
+     * Delete recommended follow-up care
+     * 
+     * @param patientId patient id
+     * @param targetDate target/recommended date of the care 
+     * @param careType type of care
+     */
+    void deleteLafReminder(Integer patientId, Date targetDate, String careType);
 
 }

@@ -82,28 +82,13 @@ public class FollowupCareFormController extends SimpleFormController {
                   if(reminder.getCompleteDate()==null ) {
                     log.debug("Complete date cannot be empty!  completeDate=" + reminder.getCompleteDate());  
                     errors.reject("Complete date cannot be empty!");  
-                  }                  
+                  } 
                 }
             }                  
         } catch (Exception ex) {
             log.error("Exception during form validation", ex);
             errors.reject("Exception during form validation, see log for more details: " + ex);
         }
-    }
-
-    /**
-     * Auto generated method comment
-     * 
-     * @param reminders
-     * @param reminder
-     * @return
-     */
-    private Date getEarliestCompleteDate(LafReminder reminder) {
-	    // TODO Auto-generated method stub
-    	Calendar cal = Calendar.getInstance();
-    	cal.setTime(reminder.getTargetDate());
-    	cal.add(Calendar.MONDAY, -3);
-    	return cal.getTime();    	
     }
 
 	@Override
@@ -122,7 +107,7 @@ public class FollowupCareFormController extends SimpleFormController {
                  if(id >= 0) {
                 	LafUtil.getService().getReminderDao().saveLafReminder(reminders.get(id));                
                 	log.debug("Reminder updated: " + reminders.get(id).getFollowProcedure().getName()+"/"+reminders.get(id).getCompleteDate() + "/" + reminders.get(id).getResponseType() + "/" + reminders.get(id).getResponseComments());
-                	request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, reminders.get(id).getFollowProcedure().getName()+"/"+reminders.get(id).getCompleteDate() + " " + reminders.get(id).getResponseType());
+                	//request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Entry added!");
                 } else {
                 	log.debug("Nothing is updated. command=" + command);
                 }
@@ -130,7 +115,7 @@ public class FollowupCareFormController extends SimpleFormController {
                 if( id != null && id >= 0) {
                 	LafUtil.getService().getReminderDao().deleteLafReminder(reminders.get(id));                
                 	log.debug("Reminder deleted: " + reminders.get(id).getFollowProcedure().getName()+"/"+reminders.get(id).getCompleteDate() + "/" + reminders.get(id).getResponseType() + "/" + reminders.get(id).getResponseComments());
-                	request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Entry deleted: " + reminders.get(id).getFollowProcedure().getName());
+                	//request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Entry deleted!");
                 } else {
                 	log.debug("Nothing is deleted. command=" + command);
                 }

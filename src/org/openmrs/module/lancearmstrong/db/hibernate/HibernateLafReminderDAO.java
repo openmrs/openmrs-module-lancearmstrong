@@ -28,15 +28,26 @@ public class HibernateLafReminderDAO implements LafReminderDAO {
 
     private SessionFactory sessionFactory;
     
+    /**
+     * set a session factory
+     * 
+     * @param sessionFactory Hibernate session factory
+     */
     public void setSessionFactory(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
     
+    /**
+     * @see org.openmrs.module.lancearmstrong.db.LafReminderDAO#getLafReminder(java.lang.Integer)
+     */
     @Override
     public LafReminder getLafReminder(Integer id) {
         return (LafReminder) sessionFactory.getCurrentSession().get(LafReminder.class, id);
     }
     
+    /**
+     * @see org.openmrs.module.lancearmstrong.db.LafReminderDAO#saveLafReminder(org.openmrs.module.lancearmstrong.LafReminder)
+     */
     @Override
    public LafReminder saveLafReminder(LafReminder reminder) {
     	log.debug("Save reminder - reminder.getFollowProcedure()=" + reminder.getFollowProcedure() + 
@@ -59,6 +70,9 @@ public class HibernateLafReminderDAO implements LafReminderDAO {
         
     }
     
+    /**
+     * @see org.openmrs.module.lancearmstrong.db.LafReminderDAO#deleteLafReminder(org.openmrs.module.lancearmstrong.LafReminder)
+     */
     @Override
     public void deleteLafReminder(LafReminder reminder) {
         //sessionFactory.getCurrentSession().delete(token);
@@ -71,6 +85,10 @@ public class HibernateLafReminderDAO implements LafReminderDAO {
         sess.close();
     }
 
+    /**
+     * @see org.openmrs.module.lancearmstrong.db.LafReminderDAO#getAllLafReminders()
+     */
+    @SuppressWarnings("unchecked")
     @Override
     public List<LafReminder> getAllLafReminders() {
         Criteria crit = sessionFactory.getCurrentSession().createCriteria(LafReminder.class);
@@ -78,6 +96,9 @@ public class HibernateLafReminderDAO implements LafReminderDAO {
         return (List<LafReminder>) crit.list();
     }
 
+    /**
+     * @see org.openmrs.module.lancearmstrong.db.LafReminderDAO#getLafReminders(org.openmrs.Patient)
+     */
     @Override
     public List<LafReminder> getLafReminders(Patient pat) {       
         //Query query = sessionFactory.getCurrentSession().createQuery("from LafReminder where allowedUrl = :url ");
@@ -88,12 +109,16 @@ public class HibernateLafReminderDAO implements LafReminderDAO {
         crit.add(Restrictions.isNull("completeDate"));
         crit.add(Restrictions.isNotNull("targetDate"));
         crit.addOrder(Order.asc("targetDate"));
+        @SuppressWarnings("unchecked")
         List<LafReminder> list = (List<LafReminder>) crit.list();
         if (list.size() >= 1)
             return list;
         else
             return null;
     }
+    /**
+     * @see org.openmrs.module.lancearmstrong.db.LafReminderDAO#getLafRemindersCompleted(org.openmrs.Patient)
+     */
     @Override
     public List<LafReminder> getLafRemindersCompleted(Patient pat) {       
         //Query query = sessionFactory.getCurrentSession().createQuery("from LafReminder where allowedUrl = :url ");
@@ -104,6 +129,7 @@ public class HibernateLafReminderDAO implements LafReminderDAO {
         crit.add(Restrictions.isNotNull("completeDate"));
         crit.add(Restrictions.isNull("targetDate"));
         crit.addOrder(Order.asc("completeDate"));
+        @SuppressWarnings("unchecked")
         List<LafReminder> list = (List<LafReminder>) crit.list();
         if (list.size() >= 1)
             return list;
@@ -123,6 +149,7 @@ public class HibernateLafReminderDAO implements LafReminderDAO {
         //crit.add(Restrictions.lt("targetDate", oneDayLater(targetDate)));
         crit.add(Restrictions.isNull("completeDate"));
         crit.addOrder(Order.asc("targetDate"));
+        @SuppressWarnings("unchecked")
         List<LafReminder> list = (List<LafReminder>) crit.list();
         if (list.size() == 1) {
         	log.debug("One reminder is found: patient=" + pat + "|careType=" + careType + "|targetDate=" + targetDate);        	
@@ -136,20 +163,6 @@ public class HibernateLafReminderDAO implements LafReminderDAO {
             return null;
     }
 
-	/**
-     * Auto generated method comment
-     * 
-     * @param targetDate
-     * @return
-     */
-    private Date oneDayLater(Date targetDate) {
-	    // TODO Auto-generated method stub
-    	Calendar cal =Calendar.getInstance();
-    	cal.setTime(targetDate);
-    	cal.add(Calendar.DATE, 1);
-    	
-	    return cal.getTime();
-    }
 
 	/**
      * @see org.openmrs.module.lancearmstrong.db.LafReminderDAO#getLafRemindersByProvider(org.openmrs.Patient)
@@ -162,11 +175,21 @@ public class HibernateLafReminderDAO implements LafReminderDAO {
         crit.add(Restrictions.isNotNull("targetDate"));
         crit.add(Restrictions.eq("responseType", "PHR_PROVIDER"));
         crit.addOrder(Order.asc("targetDate"));
+        @SuppressWarnings("unchecked")
         List<LafReminder> list = (List<LafReminder>) crit.list();
         if (list.size() >= 1)
             return list;
         else
             return null;
+    }
+
+	/**
+     * @see org.openmrs.module.lancearmstrong.db.LafReminderDAO#deleteLafReminder(java.lang.Integer, java.util.Date, java.lang.String)
+     */
+    @Override
+    public void deleteLafReminder(Integer patientId, Date targetDate, String careType) {
+    	//delete follow up care recommended by patient's providers
+    	deleteLafReminder(getLafReminder(Context.getPatientService().getPatient(patientId), Context.getConceptService().getConceptByName(careType), targetDate));    	
     }
 
 }

@@ -4,6 +4,8 @@
 
 <%@ taglib prefix="laf" uri="/WEB-INF/view/module/lancearmstrong/taglibs/lancearmstrong.tld" %>
 
+<openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
+<openmrs:htmlInclude file="/dwr/util.js" />
 <openmrs:htmlInclude file="/moduleResources/lancearmstrong/jquery-1.4.4.min.js" />
 <openmrs:htmlInclude file="/moduleResources/lancearmstrong/jquery-ui-1.8.9.custom.css" />
 <openmrs:htmlInclude file="/moduleResources/lancearmstrong/jquery-ui-1.8.9.custom.min.js" />

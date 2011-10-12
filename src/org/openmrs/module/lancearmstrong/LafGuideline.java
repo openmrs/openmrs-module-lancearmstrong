@@ -17,7 +17,9 @@ import org.openmrs.Concept;
 
 
 /**
- *
+ * Data object to represent a follow up care guide line for a given procedure
+ * 
+ * @author hxiao
  */
 public class LafGuideline {
 	private Integer id;	
@@ -26,42 +28,92 @@ public class LafGuideline {
 	private Concept followProcedure;
 	private String followYears;
 	
+    /**
+     * get id of the guideline
+     * 
+     * @return id of the guideline
+     */
     public Integer getId() {
     	return id;
     }
 	
+    /**
+     * Set id of the guideline
+     * 
+     * @param id guideline id
+     */
     public void setId(Integer id) {
     	this.id = id;
     }
 	
+    /**
+     * Get cancer type of the guideline
+     * 
+     * @return cancer type
+     */
     public Concept getCancerType() {
     	return cancerType;
     }
 	
+    /**
+     * ASet cancer type of the guideline
+     * 
+     * @param cancerType cancer type
+     */
     public void setCancerType(Concept cancerType) {
     	this.cancerType = cancerType;
     }
 	
+    /**
+     * Get cancer stage of the guideline
+     * 
+     * @return cancer stage
+     */
     public Concept getCancerStage() {
     	return cancerStage;
     }
 	
+    /**
+     * Set cancer stage
+     * 
+     * @param cancerStage stage
+     */
     public void setCancerStage(Concept cancerStage) {
     	this.cancerStage = cancerStage;
     }
 	
+    /**
+     * Get follow up care procedure
+     * 
+     * @return follow up care procedure
+     */
     public Concept getFollowProcedure() {
     	return followProcedure;
     }
 	
+    /**
+     * Set follow up care procedure
+     * 
+     * @param followProcedure follow up care procedure
+     */
     public void setFollowProcedure(Concept followProcedure) {
     	this.followProcedure = followProcedure;
     }
 	
+    /**
+     * Get the after-surgery years recommended for a given follow up care procedure 
+     * 
+     * @return after-surgery years for the follow up procedure
+     */
     public String getFollowYears() {
     	return followYears;
     }
 	
+    /**
+     * Set the after-surgery years recommended for a given follow up care procedure 
+     * 
+     * @param followYears after-surgery years for the follow up procedure
+     */
     public void setFollowYears(String followYears) {
     	this.followYears = followYears;
     }

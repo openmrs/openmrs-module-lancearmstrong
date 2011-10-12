@@ -65,11 +65,17 @@
 			$j('#completeDateNew').focus();
 			return;
 		}
-		DWRLafService.addFollowupCareCompleted(patientId, completeDate, careType, docName, resultType, comments);
+		DWRLafService.addFollowupCareCompleted(patientId, completeDate, careType, docName, resultType, comments,
+				{
+			  		callback:function(str) { 
+			    		parent.location.reload(true);
+			  		}
+	  			}
+		);
 
-		onAddCare(); 
+		//onAddCare(); 
 
-		$j('#followupForm').submit();		
+		//$j('#followupForm').submit();		
 	}	
 	
 	function saveAddedRecommendedCare(patientId){
@@ -84,15 +90,27 @@
 			$j('#recommendedDateNew').focus();
 			return;
 		}
-		DWRLafService.addFollowupCareRecommended(patientId, recommendedDate, careType, resultType, comments);
+		DWRLafService.addFollowupCareRecommended(patientId, recommendedDate, careType, resultType, comments,
+				{
+			  		callback:function(str) { 
+			    		parent.location.reload(true);
+			  		}
+			  	}
+		);
 
-		onAddRecommendedCare(); 
+		//onAddRecommendedCare(); 
 
-		$j('#followupForm').submit();		
+		//$j('#followupForm').submit();		
 	}	
 		
 	function onChange(reminderId) {
 		$j('#saveChanges'+reminderId).removeAttr("disabled");
+		$j('#saveChanges'+reminderId).focus();
+	}	
+
+	function onKeypress(reminderId) {
+		$j('#saveChanges'+reminderId).removeAttr("disabled");
+		//$j('#saveChanges'+reminderId).focus();
 	}	
 	
 	function onUpdate(index, reminderId) {
@@ -110,6 +128,26 @@
 		   return false;
 		}
 	}
+	
+	function onDeleteRecommended(patientId, recommDate, careType, responseType, flag) {
+		var recommendedDate = parseSimpleDate(recommDate, '<openmrs:datePattern />');
+		if(flag=='COMPLETED') {
+			alert("You cannot delete a completed test!");
+			return false;
+		}
+		if(confirm("Do you really want to delete this recommended care?")) {
+		   DWRLafService.deleteFollowupCareRecommended(patientId, recommendedDate, careType, responseType,
+					{
+				  		callback:function(str) { 
+				    		parent.location.reload(true);
+				  		}
+				  	}
+		   );
+		   return true;
+		} else {
+		   return false;
+		}
+	}	
 			
 </script>
 
@@ -130,6 +168,9 @@ Customized plan of care recommendation is not available. Please enter your cance
 			  <tr>
 			    <th>Target Dates</th>
 			    <th>Recommended Care</th>
+				<personalhr:hasPrivilege privilege="Add Recommended Care">
+			    <th>Action</th>
+			    </personalhr:hasPrivilege>
 			  </tr>
 		  </thead>
 		  <tbody>
@@ -138,7 +179,7 @@ Customized plan of care recommendation is not available. Please enter your cance
 			  <tr>
 				<td>
 			        <c:if test="${reminder.responseType == 'PHR_PROVIDER'}">			         				   
-						<span style="color: red;">
+						<span style="color: red;" title="Recommended by your doctor ${reminder.responseComments}">
 							<openmrs:formatDate date="${reminder.targetDate}"/>
 						</span>
 					</c:if>
@@ -152,7 +193,12 @@ Customized plan of care recommendation is not available. Please enter your cance
 			        	<br/><span style="color: green;">(${reminder.flag}<c:if test="${reminder.responseDate != null && reminder.flag != 'NEXT DUE'}"> ${reminder.responseDateFormated}</c:if>)
 			           </span>
 			        </c:if>
-			    </td>			    
+			    </td>
+				<personalhr:hasPrivilege privilege="Add Recommended Care">
+			    <td>			    
+					<input type="submit" value="<spring:message code="general.delete" />" name="command" id="deleteRecommended${reminder.id}" onClick="return onDeleteRecommended(${patient.patient.patientId}, '${reminder.targetDateFormated}', '${reminder.followProcedure.name}', '${reminder.responseType}', '${reminder.flag}');"/>
+				</td>
+				</personalhr:hasPrivilege>
 			 </tr>
 		    </c:if>
 	 	  </c:forEach>  
@@ -204,12 +250,12 @@ Customized plan of care recommendation is not available. Please enter your cance
 		    	</td>			    
 			    <td>
 			<spring:bind path="patient.remindersCompleted[${status.index}].doctorName">
-				    <input type="text" name="${status.expression}" value="${status.value}" id="docname${reminder.id}" onChange="onChange(${reminder.id})"/>
+				    <input type="text" name="${status.expression}" value="${status.value}" id="docname${reminder.id}" onChange="onChange(${reminder.id})" onkeypress="onKeypress(${reminder.id})"/>
 			</spring:bind>
 			    </td>
 			    <td>
 			<spring:bind path="patient.remindersCompleted[${status.index}].responseComments">
-				<input type="text" name="${status.expression}" id="comments${reminder.id}" onChange="onChange(${reminder.id})" value="${status.value}"/>
+				<input type="text" name="${status.expression}" id="comments${reminder.id}"  onChange="onChange(${reminder.id})" onkeypress="onKeypress(${reminder.id})" value="${status.value}"/>
 			</spring:bind>
 			    </td>
 			    <td align="center">
@@ -274,15 +320,13 @@ Customized plan of care recommendation is not available. Please enter your cance
 
 	<div id="addRecommendedCareDetailDiv">
 		<table border="1">
-	   <c:if test="${patient.remindersCompleted == null}">
-		  <thead>
-			  <tr>
-			    <th>Date Recommended</th>
-			    <th>Test Recommended</th>
-			    <th>Comments</th>
-			  </tr>
-		  </thead>
-		</c:if>
+	    <thead>
+		  <tr>
+		    <th>Date Recommended</th>
+		    <th>Test Recommended</th>
+		    <th>Comments</th>
+		  </tr>
+		</thead>
 		<tbody>
 		  	<tr>
 				<td>
