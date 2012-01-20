@@ -238,7 +238,7 @@ Customized plan of care recommendation is not available. Please enter your cance
 			  <tr>
 				<td>
 					<spring:bind path="patient.remindersCompleted[${status.index}].completeDate">
-						    <input type="text" name="${status.expression}" value="${status.value}" id="completeDate${reminder.id}" onClick="showCalendar(this, 100)" onChange="onChange(${reminder.id})"/>
+						    <input type="text" name="${status.expression}" value="${status.value}" id="completeDate${reminder.id}" onClick="showCalendar(this)" onChange="onChange(${reminder.id})"/>
 					</spring:bind>
 			    </td>
 			    <td>
@@ -283,7 +283,7 @@ Customized plan of care recommendation is not available. Please enter your cance
 		<tbody>
 		  	<tr>
 				<td>
-					 <input type="text" name="completeDateNew" id="completeDateNew" onClick="showCalendar(this, 100)" />
+					 <input type="text" name="completeDateNew" id="completeDateNew" onClick="showCalendar(this)" />
 			    </td>
 			    <td>
 					<select name="careTypeNew" id="careTypeNew">
@@ -330,7 +330,7 @@ Customized plan of care recommendation is not available. Please enter your cance
 		<tbody>
 		  	<tr>
 				<td>
-					 <input type="text" name="recommendedDateNew" id="recommendedDateNew" onClick="showCalendar(this, 100)" />
+					 <input type="text" name="recommendedDateNew" id="recommendedDateNew" onClick="showCalendar(this)" />
 			    </td>
 			    <td>
 					<select name="recommendedCareTypeNew" id="recommendedCareTypeNew">

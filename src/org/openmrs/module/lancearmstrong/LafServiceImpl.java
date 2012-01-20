@@ -76,8 +76,8 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     //6115-6130: Sub types of each treatment type
 	protected final static HashMap<MultiKey, Integer[]> sideEffectsMap = new HashMap<MultiKey, Integer[]>();
 	static {
-		sideEffectsMap.put(new MultiKey(new Integer[]{0,0}), new Integer[]{6225, 6226});
-		sideEffectsMap.put(new MultiKey(new Integer[]{1,0}), new Integer[]{6236});
+		sideEffectsMap.put(new MultiKey(new Integer[]{0,0}), new Integer[]{6225, 6226}); //all
+		sideEffectsMap.put(new MultiKey(new Integer[]{1,0}), new Integer[]{6236}); //chemotherapy
 		sideEffectsMap.put(new MultiKey(new Integer[]{1,6123}), new Integer[]{6227,6228,6231,6232,6233,6234,6235});
 		sideEffectsMap.put(new MultiKey(new Integer[]{1,6124}), new Integer[]{6229,6231,6233,6234,6235});
 		sideEffectsMap.put(new MultiKey(new Integer[]{1,6125}), new Integer[]{6230,6231,6233,6234,6235});
@@ -86,12 +86,12 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
 		sideEffectsMap.put(new MultiKey(new Integer[]{1,6128}), new Integer[]{6233,6234,6235});
 		sideEffectsMap.put(new MultiKey(new Integer[]{1,6129}), new Integer[]{6233,6234,6235});
 		sideEffectsMap.put(new MultiKey(new Integer[]{1,6130}), new Integer[]{6233,6234,6235});
-		sideEffectsMap.put(new MultiKey(new Integer[]{2, 6134}), new Integer[]{6244,6245,6246,6247,6248});
+		sideEffectsMap.put(new MultiKey(new Integer[]{2, 6134}), new Integer[]{6244,6245,6246,6247,6248}); //radiation
 		sideEffectsMap.put(new MultiKey(new Integer[]{2, 6135}), new Integer[]{6244,6245,6246,6247,6248});
 		sideEffectsMap.put(new MultiKey(new Integer[]{2, 6136}), new Integer[]{6244,6245,6246,6247,6248});
 		sideEffectsMap.put(new MultiKey(new Integer[]{2, 6137}), new Integer[]{6244,6245,6246,6247,6248});
 		sideEffectsMap.put(new MultiKey(new Integer[]{2, 6138}), new Integer[]{6244,6245,6246,6247,6248});
-		sideEffectsMap.put(new MultiKey(new Integer[]{3,6112}), new Integer[]{6237});
+		sideEffectsMap.put(new MultiKey(new Integer[]{3,6112}), new Integer[]{6237}); //surgeries
 		sideEffectsMap.put(new MultiKey(new Integer[]{3,6113}), new Integer[]{6238});
 		sideEffectsMap.put(new MultiKey(new Integer[]{3,6114}), new Integer[]{6239});
 		sideEffectsMap.put(new MultiKey(new Integer[]{3,6115}), new Integer[]{6240});
