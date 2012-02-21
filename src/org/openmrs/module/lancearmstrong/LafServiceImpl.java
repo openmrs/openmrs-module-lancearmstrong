@@ -603,6 +603,10 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     private List<LafReminder>  findReminders(Patient pat) {    	
     	//find all reminders recommended by guideline and patient's providers
     	List<LafReminder> reminders = findAllReminders(pat);
+    	
+    	if(reminders==null || reminders.isEmpty()) {
+    		return null;
+    	}
     	        
     	//find completed reminders
     	List<LafReminder> remindersCompleted = getRemindersCompleted(pat);
