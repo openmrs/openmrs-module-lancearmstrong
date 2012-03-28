@@ -76,27 +76,14 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     //6115-6130: Sub types of each treatment type
 	protected final static HashMap<MultiKey, Integer[]> sideEffectsMap = new HashMap<MultiKey, Integer[]>();
 	static {
-		sideEffectsMap.put(new MultiKey(new Integer[]{0,0}), new Integer[]{6225, 6226}); //all
-		sideEffectsMap.put(new MultiKey(new Integer[]{1,0}), new Integer[]{6236}); //chemotherapy
-		sideEffectsMap.put(new MultiKey(new Integer[]{1,6123}), new Integer[]{6227,6228,6231,6232,6233,6234,6235});
-		sideEffectsMap.put(new MultiKey(new Integer[]{1,6124}), new Integer[]{6229,6231,6233,6234,6235});
-		sideEffectsMap.put(new MultiKey(new Integer[]{1,6125}), new Integer[]{6230,6231,6233,6234,6235});
-		sideEffectsMap.put(new MultiKey(new Integer[]{1,6126}), new Integer[]{6230,6231,6233,6234,6235});
-		sideEffectsMap.put(new MultiKey(new Integer[]{1,6127}), new Integer[]{6231,6233,6234,6235});
-		sideEffectsMap.put(new MultiKey(new Integer[]{1,6128}), new Integer[]{6233,6234,6235});
-		sideEffectsMap.put(new MultiKey(new Integer[]{1,6129}), new Integer[]{6233,6234,6235});
-		sideEffectsMap.put(new MultiKey(new Integer[]{1,6130}), new Integer[]{6233,6234,6235});
-		sideEffectsMap.put(new MultiKey(new Integer[]{2, 6134}), new Integer[]{6244,6245,6246,6247,6248}); //radiation
-		sideEffectsMap.put(new MultiKey(new Integer[]{2, 6135}), new Integer[]{6244,6245,6246,6247,6248});
-		sideEffectsMap.put(new MultiKey(new Integer[]{2, 6136}), new Integer[]{6244,6245,6246,6247,6248});
-		sideEffectsMap.put(new MultiKey(new Integer[]{2, 6137}), new Integer[]{6244,6245,6246,6247,6248});
-		sideEffectsMap.put(new MultiKey(new Integer[]{2, 6138}), new Integer[]{6244,6245,6246,6247,6248});
-		sideEffectsMap.put(new MultiKey(new Integer[]{3,6112}), new Integer[]{6237}); //surgeries
-		sideEffectsMap.put(new MultiKey(new Integer[]{3,6113}), new Integer[]{6238});
-		sideEffectsMap.put(new MultiKey(new Integer[]{3,6114}), new Integer[]{6239});
-		sideEffectsMap.put(new MultiKey(new Integer[]{3,6115}), new Integer[]{6240});
-		sideEffectsMap.put(new MultiKey(new Integer[]{3,6116}), new Integer[]{6241});
-		sideEffectsMap.put(new MultiKey(new Integer[]{3,6117}), new Integer[]{6242});
+		sideEffectsMap.put(new MultiKey(new Integer[]{0,0}), new Integer[]{6250, 6226, 6254, 6255}); //all
+		sideEffectsMap.put(new MultiKey(new Integer[]{0,1}), new Integer[]{6235, 6252}); //male
+		sideEffectsMap.put(new MultiKey(new Integer[]{0,2}), new Integer[]{6233, 6251}); //female
+		sideEffectsMap.put(new MultiKey(new Integer[]{1,6123}), new Integer[]{6228});//chemotherapy
+		sideEffectsMap.put(new MultiKey(new Integer[]{1,6124}), new Integer[]{6229});
+		sideEffectsMap.put(new MultiKey(new Integer[]{2, 0}), new Integer[]{6244, 6245}); //radiation
+		sideEffectsMap.put(new MultiKey(new Integer[]{3,6110}), new Integer[]{6256}); //surgeries
+		sideEffectsMap.put(new MultiKey(new Integer[]{3,6111}), new Integer[]{6253});
 	}
     
     @Override
@@ -160,27 +147,29 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     	
     	//Key set
     	List<MultiKey> keys = new ArrayList<MultiKey>();
-    	keys.add(new MultiKey(new Integer[]{0,0}));
-
-    	//get the patient's cancer treatment types and sub-types
     	
+    	//for all patients
+    	keys.add(new MultiKey(new Integer[]{0,0}));
+    	
+    	//for male patients
+    	if("M".equalsIgnoreCase(pat.getGender())) {
+    		keys.add(new MultiKey(new Integer[]{0,1}));
+    	} else if("F".equalsIgnoreCase(pat.getGender())) {
+    		keys.add(new MultiKey(new Integer[]{0,2}));
+    	} else {
+    		keys.add(new MultiKey(new Integer[]{0,1}));
+    		keys.add(new MultiKey(new Integer[]{0,2}));    		
+    	}
+
     	//find  Chemotherapy meds used
-    	Encounter enc = findCancerTreatment(pat, this.CHEMOTHERAPY_ENCOUNTER);
-    	if(enc != null) {
-        	keys.add(new MultiKey(new Integer[]{1,0}));
-    		
-        	Concept chemoMedsConcept = Context.getConceptService().getConcept(this.CHEMOTHERAPY_MEDS);
+    	Encounter enc = findCancerTreatment(pat, CHEMOTHERAPY_ENCOUNTER);
+    	if(enc != null) {    		
+        	Concept chemoMedsConcept = Context.getConceptService().getConcept(CHEMOTHERAPY_MEDS);
         	List<Obs> meds = Context.getObsService().getObservationsByPersonAndConcept(pat, chemoMedsConcept);
         	if(meds != null) {
         		for(Obs med : meds) {
-        			if(med.getEncounter().getId() != enc.getId()) {
-        				continue;
-        			} 
         			keys.add(new MultiKey(new Integer[]{1, med.getValueCoded().getId()}));
         			log.debug("Chemotherapy med added: " + med + ", id=" + med.getValueCoded().getId());
-        		}
-        		if(keys.size()==1) {
-           			log.debug("No chemotherapy meds are found for encounter " + enc);    		        			
         		}
         	} else {
        			log.debug("No chemotherapy meds are found.");    		
@@ -190,45 +179,25 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     	}
     	
     	//find  Radiation types
-    	enc = findCancerTreatment(pat, this.RADIATION_ENCOUNTER);
+    	enc = findCancerTreatment(pat, RADIATION_ENCOUNTER);
     	if(enc != null) {
-        	//keys.add(new Integer[]{2,0});
-    		
-        	Concept radioTypeConcept = Context.getConceptService().getConcept(this.RADIATION_TYPE);
-        	List<Obs> types = Context.getObsService().getObservationsByPersonAndConcept(pat, radioTypeConcept);
-        	if(types != null) {
-        		for(Obs type : types) {
-        			if(type.getEncounter().getId() != enc.getId()) {
-        				continue;
-        			} 
-        			keys.add(new MultiKey(new Integer[]{2, type.getValueCoded().getId()}));
-        			
-        			log.debug("Radiation type added: " + type + ", id=" + type.getValueCoded().getId());
-        		}
-        	}
+    		//for all radiation types
+    		keys.add(new MultiKey(new Integer[]{2, 0}));    		
     	} 
     	
       	//find  Surgery types
-    	enc = findCancerTreatment(pat, this.SURGERY_ENCOUNTER);
+    	enc = findCancerTreatment(pat, SURGERY_ENCOUNTER);
     	if(enc != null) {
-        	//keys.add(new Integer[]{3,0});
-    		
-        	Concept surgeryTypeConcept = Context.getConceptService().getConcept(this.SURGERY_TYPE);
-        	List<Obs> types = Context.getObsService().getObservationsByPersonAndConcept(pat, surgeryTypeConcept);
-        	if(types != null) {
-        		for(Obs type : types) {
-        			if(type.getEncounter().getId() != enc.getId()) {
-        				continue;
-        			} 
-        			keys.add(new MultiKey(new Integer[]{3, type.getValueCoded().getId()}));
-        			log.debug("Surgery type added: " + type + ", id=" + type.getValueCoded().getId());
-        		}
-        	}
+        	//get the patient's cancer type
+        	Concept cancerType = getCancerType(pat);
+        	if(cancerType != null) {
+        		keys.add(new MultiKey(new Integer[]{3, cancerType.getConceptId()}));
+        	}    		
     	} 
     	
     	//query side effect concepts' id's from a hash map and add corresponding Concept objects to the return list
     	for(MultiKey key : keys) {
-    		Integer[] sideEffectIds = this.sideEffectsMap.get(key);
+    		Integer[] sideEffectIds = sideEffectsMap.get(key);
     		if(sideEffectIds == null) {
     			log.debug("Key skipped: " + key);
     			continue;
@@ -573,9 +542,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
      */
     private List<LafGuideline>  findGuidelines(Patient pat) {
     	//find cancer type
-    	Concept cancerTypeConcept = Context.getConceptService().getConcept(CANCER_TYPE);
-    	Obs cancerType = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, cancerTypeConcept));
-    	Concept type = cancerType==null? null : cancerType.getValueCoded();
+    	Concept type = getCancerType(pat);
     	//find cancer stage
     	Concept cancerStageConcept = Context.getConceptService().getConcept(CANCER_STAGE);
     	Obs cancerStage = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, cancerStageConcept));
@@ -587,6 +554,13 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     	return guidelines;
     }
 
+    private Concept getCancerType(Patient pat) {
+    	Concept cancerTypeConcept = Context.getConceptService().getConcept(CANCER_TYPE);
+    	Obs cancerType = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, cancerTypeConcept));
+    	Concept type = cancerType==null? null : cancerType.getValueCoded();
+    	return type;
+    }
+    
 	/**
      * Find flagged reminders for a given patient for Calendar display
      * (flagged as Completed, Snoozed, Scheduled, Not Performed, or Skipped)
@@ -779,7 +753,9 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     	if(guidelines != null) {
 	    	for(LafGuideline guideline : guidelines) {
 	    		Date[] dates = findTargetDates(surgDate, radType, guideline.getFollowYears());
-	    		
+	    		if(dates == null) {
+	    			continue;
+	    		}
 	    		for(Date dt: dates) {
 		    		LafReminder reminder = new LafReminder();
 		    		reminder.setPatient(pat);
