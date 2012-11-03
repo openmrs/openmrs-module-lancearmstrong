@@ -154,7 +154,7 @@
 <c:choose>
 <c:when test="${patient.reminders==null}">
 <em>
-Customized plan of care recommendation is not available. Please enter your cancer summary and surgery information in My History panel in order to see the recommendation.
+Customized plan of care recommendation is not available.
 </em>  
 </c:when>
 <c:otherwise>
