@@ -54,6 +54,13 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     private LafGuidelineDAO guidelineDao;
     private LafReminderDAO reminderDao;
     
+    private final static Integer CANCER_ABNORMALITY_TOLD = 6102;
+    private final static Integer CANCER_ABNORMALITY_TOLD_YES = 1065;
+    private final static Integer CANCER_ABNORMALITY = 6147;
+    private final static Integer CANCER_ABNORMALITY_FAP = 6104;
+    private final static Integer CANCER_ABNORMALITY_HNPCC = 6103;
+    private final static Integer CANCER_ABNORMALITY_INFLBD = 6105;
+    
     private final static Integer CANCER_TYPE = 6145; 
     private final static Integer CANCER_STAGE = 6146; 
     private final static Integer SURGERY_TYPE = 6152; 
@@ -720,6 +727,30 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     		}
     	}
     	*/
+    	//find genetic_abnormality flag and answer 
+    	//block any follow-up tests from appearing:    		 
+    	//	1)       IF the patient answers ‘YES’ to genetic abnormality, and 
+    	//	2)       THEN answers FAP/HNPCC/or INFLAMMATORY BOWEL DISORDER
+    	//find genetic abnormality flag   	
+    	Concept cancerAbnormalityToldConcept = Context.getConceptService().getConcept(CANCER_ABNORMALITY_TOLD);
+    	Concept cancerAbnormalityToldYesConcept = Context.getConceptService().getConcept(CANCER_ABNORMALITY_TOLD_YES);
+    	Concept cancerAbnormalityConcept = Context.getConceptService().getConcept(CANCER_ABNORMALITY);
+    	Concept cancerAbnormalityFapConcept = Context.getConceptService().getConcept(CANCER_ABNORMALITY_FAP);
+    	Concept cancerAbnormalityHnpccConcept = Context.getConceptService().getConcept(CANCER_ABNORMALITY_HNPCC);
+    	Concept cancerAbnormalityInflbdConcept = Context.getConceptService().getConcept(CANCER_ABNORMALITY_INFLBD);
+
+    	Obs cancerAbnormalityToldObs = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, cancerAbnormalityToldConcept));
+    	Concept cancerAbnormalityToldAns = (cancerAbnormalityToldObs==null? null : cancerAbnormalityToldObs.getValueCoded());
+    	if(cancerAbnormalityToldAns != null && cancerAbnormalityToldAns.equals(cancerAbnormalityToldYesConcept)) { 	    	
+	    	Obs cancerAbnormalityObs = findLatest(Context.getObsService().getObservationsByPersonAndConcept(pat, cancerAbnormalityConcept));
+	    	Concept cancerAbnormalityAns = (cancerAbnormalityObs==null? null : cancerAbnormalityObs.getValueCoded());
+	    	if(cancerAbnormalityAns != null && 
+	    	   (cancerAbnormalityAns.equals(cancerAbnormalityFapConcept) ||
+	    	    cancerAbnormalityAns.equals(cancerAbnormalityHnpccConcept) ||
+	    	    cancerAbnormalityAns.equals(cancerAbnormalityInflbdConcept))) {
+	    		return null;
+	    	}
+    	}
     	
 	    //find surgery date
     	Concept surgeryDateConcept = Context.getConceptService().getConcept(SURGERY_DATE);
