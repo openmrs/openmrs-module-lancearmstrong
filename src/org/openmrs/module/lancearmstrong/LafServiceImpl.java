@@ -175,8 +175,10 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
         	List<Obs> meds = Context.getObsService().getObservationsByPersonAndConcept(pat, chemoMedsConcept);
         	if(meds != null) {
         		for(Obs med : meds) {
-        			keys.add(new MultiKey(new Integer[]{1, med.getValueCoded().getId()}));
-        			log.debug("Chemotherapy med added: " + med + ", id=" + med.getValueCoded().getId());
+        			if(med.getValueCoded() != null) {
+        				keys.add(new MultiKey(new Integer[]{1, med.getValueCoded().getId()}));
+        				log.debug("Chemotherapy med added: " + med + ", id=" + med.getValueCoded().getId());
+        			}
         		}
         	} else {
        			log.debug("No chemotherapy meds are found.");    		

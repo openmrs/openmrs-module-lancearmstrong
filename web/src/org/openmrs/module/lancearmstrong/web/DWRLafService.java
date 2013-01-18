@@ -99,7 +99,7 @@ public class DWRLafService {
 	 * @param responseType identify if a response is entered by patient's provider or not
 	 */
 	public void deleteFollowupCareRecommended(Integer patientId, Date targetDate, String careType, String responseType) {
-		log.debug("Calling DWRLafService.addFollowupCareCompleted...patientId=" + patientId + 
+		log.debug("Calling DWRLafService.deleteFollowupCareRecommended...patientId=" + patientId + 
 			       ",careType=" + careType);
 		if(RESPONSE_TYPE_PROVIDER.equals(responseType)) {
 			//delete follow up care recommended by patient's providers
@@ -173,7 +173,7 @@ public class DWRLafService {
 	 * @param targetDate target/recommended date of this care
 	 */
 	public void followupCareSnooze(Integer patientId, Integer snoozeDays, Integer careType, Date targetDate) {
-		log.debug("Calling DWRLafService.followupCareScheduled...patientId=" + patientId + ", snoozeDays=" + snoozeDays + ",careType=" + careType + ", targetDate=" + targetDate);
+		log.debug("Calling DWRLafService.followupCareSnooze...patientId=" + patientId + ", snoozeDays=" + snoozeDays + ",careType=" + careType + ", targetDate=" + targetDate);
 		
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, snoozeDays);
@@ -204,7 +204,7 @@ public class DWRLafService {
 	 * @param targetDate target/recommended date of this care
 	 */
 	public void followupCareNotPerformed(Integer patientId, String yesOrNo, Integer careType, Date targetDate) {
-		log.debug("Calling DWRLafService.followupCareScheduled...patientId=" + patientId + ", yesOrNo=" + yesOrNo + ",careType=" + careType + ", targetDate=" + targetDate);
+		log.debug("Calling DWRLafService.followupCareNotPerformed...patientId=" + patientId + ", yesOrNo=" + yesOrNo + ",careType=" + careType + ", targetDate=" + targetDate);
 				
 		LafReminder reminder = LafUtil.getService().getReminderDao().getLafReminder(Context.getPatientService().getPatient(patientId), Context.getConceptService().getConcept(careType), targetDate);
 		if(reminder != null) {
