@@ -135,10 +135,63 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
      */
     @Override
     public List<LafReminder> getRemindersCompleted(Patient pat) {    	
-	    return reminderDao.getLafRemindersCompleted(pat);
+    	List<LafReminder> reminderList = reminderDao.getLafRemindersCompleted(pat); 	
+    	return reminderList;
     }  
     
-    private List<LafReminder> getRemindersByProvider(Patient pat) {    	
+    @Override
+    public List<LafReminder> addRemindersCompleted(Patient pat) {    	
+    	List<LafReminder> origReminderList = reminderDao.getLafRemindersCompleted(pat); 	
+    	List<LafReminder> reminderList = null;
+    	
+    	//Look for completed tests from OpenMRS Obs records
+    	List<Obs> obsList = Context.getObsService().getObservationsByPerson(pat);
+    	Concept colonoscopy = Context.getConceptService().getConcept("Colonoscopy"); //6219
+    	String csString = colonoscopy.getName().getName().toLowerCase();
+    	for(Obs obs : obsList) {
+			Encounter enc = obs.getEncounter();
+			if(enc == null || enc.getEncounterType().getName().matches("(CANCER|SUMMARIZATION)")) continue;
+
+    		String value = obs.getValueAsString(Context.getLocale());
+    		if(value != null && value.toLowerCase().contains(csString)) {
+    			LafReminder rem = new LafReminder();
+    			rem.setFollowProcedure(colonoscopy);
+    			rem.setCompleteDate(enc.getEncounterDatetime());
+    			if(enc.getProvider() != null) {
+    				rem.setDoctorName(enc.getProvider().getPersonName().getFullName().replace("Unknown", ""));
+    			}
+    			rem.setFlag("Completed");
+    			rem.setPatient(pat);
+    			rem.setResponseType("CCD");
+    			rem.setResponseDate(new Date());
+    			rem.setResponseComments("A follow up care is found from CCD imported");
+    			//rem.setTargetDate(enc.getEncounterDatetime());
+    			rem.setResponseUser(enc.getCreator());
+    	    	if(reminderList == null) {
+    	    		reminderList = new ArrayList<LafReminder>();
+    	    	}
+    			reminderList.add(rem);
+    			if(findReminder(origReminderList, rem) == null) {
+    				reminderDao.saveLafReminder(rem);
+    			}
+    		}
+    	}
+    	
+    	return reminderList;
+    }      
+    
+    private LafReminder findReminder(List<LafReminder> origReminderList, LafReminder rem) {
+    	if(origReminderList==null) return null;
+    	for(LafReminder reminder : origReminderList) {
+    		if(reminder.getFollowProcedure().getId().compareTo(rem.getFollowProcedure().getId())==0 && reminder.getCompleteDate().equals(rem.getCompleteDate())) {
+    			return reminder;
+    		} 
+    	}
+		return null;
+	}
+
+
+	private List<LafReminder> getRemindersByProvider(Patient pat) {    	
 	    return reminderDao.getLafRemindersByProvider(pat);
     }    
     

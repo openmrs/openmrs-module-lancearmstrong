@@ -88,4 +88,6 @@ public interface LafService {
      */
     List<LafReminder> getReminders(Patient patient, Date indexDate);
 
+	List<LafReminder> addRemindersCompleted(Patient pat);
+
 }
