@@ -2,23 +2,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.openmrs.module</groupId>
-	<artifactId>lancearmstrong</artifactId>
-	<version>2.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
+    <groupId>org.openmrs.module</groupId>
+    <artifactId>lancearmstrong</artifactId>
+    <version>2.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-	<name>Personal Cancer Tookit</name>
-	<description>Parent project for Personal Cancer Tookit</description>
+    <name>Personal Cancer Tookit</name>
+    <description>Parent project for Personal Cancer Tookit</description>
 
-	<url>http://openmrs.org</url>
+    <url>http://openmrs.org</url>
 
-	<scm>
-		<connection>scm:svn:http://svn.openmrs.org/openmrs-modules/lancearmstrong/trunk/</connection>
-		<developerConnection>scm:svn:http://svn.openmrs.org/openmrs-modules/lancearmstrong/trunk/</developerConnection>
-		<url>http://svn.openmrs.org/openmrs-modules/lancearmstrong/trunk/</url>
-	</scm>
+    <scm>
+        <connection>scm:git:https://github.com/openmrs/openmrs-module-lancearmstrong/</connection>
+        <developerConnection>scm:git:https://github.com/openmrs/openmrs-module-lancearmstrong/</developerConnection>
+        <url>https://github.com/openmrs/openmrs-module-lancearmstrong/</url>
+    </scm>
 
-	<distributionManagement>
+    <distributionManagement>
         <repository>
             <id>openmrs-repo-modules</id>
             <name>OpenMRS Modules</name>
@@ -29,12 +29,12 @@
             <name>OpenMRS Snapshots</name>
             <url>http://mavenrepo.openmrs.org/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
-	</distributionManagement>
+    </distributionManagement>
 
-	<modules>
-		<module>api</module>
-		<module>omod</module>
-	</modules>
+    <modules>
+        <module>api</module>
+        <module>omod</module>
+    </modules>
 
     <properties>
         <openMRSVersion>1.8.0</openMRSVersion>
