@@ -37,9 +37,11 @@
 	</modules>
 
     <properties>
+        <customArgLineForTesting></customArgLineForTesting>
         <openMRSVersion>1.8.0</openMRSVersion>
         <logicVersion>0.5.1</logicVersion>
-        <customArgLineForTesting></customArgLineForTesting>
+        <htmlFormEntryVersion>2.3</htmlFormEntryVersion>
+        <personalhrVersion>0.1-SNAPSHOT</personalhrVersion>
     </properties>
 
     <dependencies>
@@ -48,6 +50,20 @@
             <groupId>org.openmrs.module</groupId>
             <artifactId>logic-api</artifactId>
             <version>${logicVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openmrs.module</groupId>
+            <artifactId>htmlformentry-api</artifactId>
+            <version>${htmlFormEntryVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openmrs.module</groupId>
+            <artifactId>personalhr-api</artifactId>
+            <version>${personalhrVersion}</version>
             <scope>provided</scope>
         </dependency>
 
