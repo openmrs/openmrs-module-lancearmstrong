@@ -13,19 +13,15 @@
  */
 package org.openmrs.module.lancearmstrong.extension.html;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.openmrs.api.context.Context;
 import org.openmrs.module.Extension;
-import org.openmrs.module.web.extension.PatientDashboardTabExt;;
 
 /**
  * This class defines the links that will appear on the administration page under the
  * "basicmodule.title" heading. This extension is enabled by defining (uncommenting) it in the
  * /metadata/config.xml file.
  */
-public class PatientFollowCare extends PatientDashboardTabExt {
+public class PatientFollowCare extends LAPatientDashboardTabExt {
 	
 	/**
 	 * default constructor: set display order attribute

@@ -13,18 +13,14 @@
  */
 package org.openmrs.module.lancearmstrong.extension.html;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.openmrs.module.Extension;
-import org.openmrs.module.web.extension.PatientDashboardTabExt;;
 
 /**
  * This class defines the links that will appear on the administration page under the
  * "basicmodule.title" heading. This extension is enabled by defining (uncommenting) it in the
  * /metadata/config.xml file.
  */
-public class FollowCareAlert extends PatientDashboardTabExt {
+public class FollowCareAlert extends LAPatientDashboardTabExt {
 	
 	/**
 	 * @see org.openmrs.module.web.extension.AdministrationSectionExt#getMediaType()

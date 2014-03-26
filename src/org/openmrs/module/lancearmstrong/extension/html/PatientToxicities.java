@@ -13,27 +13,34 @@
  */
 package org.openmrs.module.lancearmstrong.extension.html;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.Extension;
-import org.openmrs.module.web.extension.PatientDashboardTabExt;;
 
 /**
  * This class defines the links that will appear on the administration page under the
  * "basicmodule.title" heading. This extension is enabled by defining (uncommenting) it in the
  * /metadata/config.xml file.
  */
-public class PatientToxicities extends PatientDashboardTabExt {
-	
+public class PatientToxicities extends LAPatientDashboardTabExt {
+
+	private final Log log = LogFactory.getLog(this.getClass());
+
+	private Integer DEFAULT_ORDER = 3;
+
 	/**
 	 * default constructor: set display order attribute
 	 */
 	public PatientToxicities() {
 		super();
 		String order = Context.getAdministrationService().getGlobalProperty("lancearmstrong.PatientToxicities.displayorder");
-		this.setOrder(Integer.valueOf(order==null? "3": order));
+		try {
+			this.setOrder(order == null ? DEFAULT_ORDER : Integer.valueOf(order));
+		} catch (NumberFormatException e) {
+			log.warn("could not set order to " + order + ", using default of 3.", e);
+			this.setOrder(DEFAULT_ORDER);
+		}
 	}
 
 	/**

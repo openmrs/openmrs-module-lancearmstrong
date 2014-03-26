@@ -784,7 +784,7 @@ public class LafServiceImpl extends BaseOpenmrsService implements LafService {
     	*/
     	//find genetic_abnormality flag and answer 
     	//block any follow-up tests from appearing:    		 
-    	//	1)       IF the patient answers ‘YES’ to genetic abnormality, and 
+    	//	1)       IF the patient answers YES to genetic abnormality, and 
     	//	2)       THEN answers FAP/HNPCC/or INFLAMMATORY BOWEL DISORDER
     	//find genetic abnormality flag   	
     	Concept cancerAbnormalityToldConcept = Context.getConceptService().getConcept(CANCER_ABNORMALITY_TOLD);
