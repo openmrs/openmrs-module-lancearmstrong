@@ -37,7 +37,6 @@
 	</modules>
 
     <properties>
-        <customArgLineForTesting></customArgLineForTesting>
         <openMRSVersion>1.8.0</openMRSVersion>
         <logicVersion>0.5.1</logicVersion>
         <htmlFormEntryVersion>2.3</htmlFormEntryVersion>
@@ -165,9 +164,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.5</version>
                     <configuration>
-                        <argLine>-Duser.language=en -Duser.region=US -Xmx512m -XX:MaxPermSize=512m
-                            ${customArgLineForTesting}
-                        </argLine>
+                        <argLine>-Duser.language=en -Duser.region=US -Xmx512m -XX:MaxPermSize=512m</argLine>
                     </configuration>
                 </plugin>
 
